@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PayMyDerm Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --g1: #1a5c2a;
+  --g2: #2d8b3e;
+  --g3: #5CB85C;
+  --gl: #86EFAC;
+  --green: #5CB85C;
+  --green-dk: #2d6a35;
+  --green-lt: #DCFCE7;
+  --green-50: #F0FDF4;
+  --ink:   #111827;
+  --ink-2: #374151;
+  --ink-3: #6B7280;
+  --ink-4: #9CA3AF;
+  --ink-5: #D1D5DB;
+  --ink-6: #E5E7EB;
+  --surface: #FFFFFF;
+  --canvas: #F6F8F7;
+  --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+  --hero-grad: linear-gradient(155deg, #1a5c2a 0%, #2d8b3e 45%, #5CB85C 100%);
+}
+
+html, body { height: 100%; font-family: var(--font); -webkit-font-smoothing: antialiased; }
+body { background: #0a0f14; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+/* ── DEVICE ── */
+.device {
+  width: 393px; height: 852px;
+  background: var(--canvas);
+  border-radius: 52px; overflow: hidden;
+  position: relative; flex-shrink: 0;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.07),
+    0 0 0 4px #161c22,
+    0 40px 100px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.device::before {
+  content: ''; position: absolute; top: 12px; left: 50%;
+  transform: translateX(-50%);
+  width: 126px; height: 36px;
+  background: #000; border-radius: 20px; z-index: 300;
+}
+@media (max-width: 430px) {
+  body { background: var(--canvas); display: block; }
+  .device { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  .device::before { display: none; }
+}
+
+/* ── STATUS BAR ── */
+.statusbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 54px; display: flex; align-items: flex-end;
+  justify-content: space-between; padding: 0 32px 8px;
+  z-index: 200; font-size: 15px; font-weight: 700;
+  pointer-events: none; transition: color 0.3s;
+}
+.statusbar.light { color: #fff; }
+.statusbar.dark  { color: var(--ink); }
+.sb-icons { display: flex; align-items: center; gap: 5px; }
+
+/* ── SCREENS ── */
+.screen {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  overflow: hidden; will-change: transform, opacity;
+}
+.screen.active {
+  display: flex;
+  animation: scrIn 0.38s var(--ease-out) both;
+}
+@keyframes scrIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.scroll {
+  flex: 1; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ── GRADIENT HERO (scrolls with content) ── */
+.hero {
+  background: var(--hero-grad);
+  padding: 54px 24px 72px;
+  position: relative; overflow: hidden;
+}
+.hero-blob1 {
+  position: absolute; top: -80px; right: -60px;
+  width: 240px; height: 240px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 50%; pointer-events: none;
+}
+.hero-blob2 {
+  position: absolute; bottom: -50px; left: -40px;
+  width: 180px; height: 180px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%; pointer-events: none;
+}
+.hero-top {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
+.hero-greet { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.72); margin-bottom: 3px; }
+.hero-name  { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
+.hero-right { display: flex; align-items: center; gap: 10px; }
+.hero-bell {
+  width: 40px; height: 40px; border-radius: 14px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: #fff; cursor: pointer; position: relative;
+}
+.hero-bell-dot {
+  position: absolute; top: 8px; right: 8px;
+  width: 8px; height: 8px; background: #FB923C;
+  border-radius: 50%; border: 1.5px solid #2d8b3e;
+}
+.hero-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  border: 2.5px solid rgba(255,255,255,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; color: #fff;
+  cursor: pointer; position: relative;
+}
+.hero-avatar-ring {
+  position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(255,255,255,0.75);
+  border-right-color: rgba(255,255,255,0.3);
+  animation: spin 5s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.hero-badges {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  position: relative; z-index: 1;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 12px; font-weight: 600; color: #fff;
+}
+
+/* ── FLOATING BALANCE CARD ── */
+.bal-card {
+  background: #fff; border-radius: 28px;
+  padding: 24px; margin: -52px 20px 0;
+  position: relative; z-index: 10;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.06);
+}
+.bal-label {
+  font-size: 11px; font-weight: 700; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+}
+.bal-amount {
+  font-size: 44px; font-weight: 800; color: var(--ink);
+  letter-spacing: -2px; line-height: 1; margin-bottom: 5px;
+}
+.bal-amount sup { font-size: 24px; letter-spacing: -1px; vertical-align: top; margin-top: 8px; display: inline-block; }
+.bal-cents { font-size: 26px; color: var(--ink-4); letter-spacing: -1px; }
+.bal-sub { font-size: 13px; color: var(--ink-3); font-weight: 500; }
+.bal-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 0; margin-top: 20px; padding-top: 20px;
+  border-top: 1px solid var(--ink-6);
+}
+.bal-stat { text-align: center; }
+.bal-stat + .bal-stat { border-left: 1px solid var(--ink-6); }
+.bal-stat-val { display: block; font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+.bal-stat-val.g { color: var(--green); }
+.bal-stat-lbl  { display: block; font-size: 10.5px; color: var(--ink-4); font-weight: 600; margin-top: 3px; }
+
+/* ── QUICK ACTIONS ── */
+.qa-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; padding: 24px 20px 0; }
+.qa-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+.qa-ico {
+  width: 58px; height: 58px; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px;
+  transition: transform 0.2s var(--ease-spring);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.qa-item:active .qa-ico { transform: scale(0.88); }
+.qa-lbl { font-size: 11px; font-weight: 700; color: var(--ink-3); text-align: center; }
+
+/* ── SECTION HEAD ── */
+.sec-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 20px 12px;
+}
+.sec-title { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; }
+.sec-link  { font-size: 13px; font-weight: 700; color: var(--green); cursor: pointer; }
+
+/* ── BILL ROW ── */
+.bill-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; background: #fff;
+  margin: 0 20px 10px; border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+}
+.bill-row:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.b-ico {
+  width: 48px; height: 48px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0; position: relative;
+}
+.b-info { flex: 1; min-width: 0; }
+.b-name { font-size: 14px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.b-date { font-size: 12px; color: var(--ink-4); font-weight: 500; margin-top: 2px; }
+.b-right { text-align: right; flex-shrink: 0; }
+.b-amt  { font-size: 16px; font-weight: 800; color: var(--ink); }
+.b-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 700; margin-top: 4px;
+}
+.b-prog { height: 5px; background: var(--ink-6); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+.b-prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--green-dk), var(--green)); }
+.b-badge {
+  position: absolute; top: -4px; right: -4px;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff;
+}
+
+/* ── CHART CARD ── */
+.chart-card {
+  background: #fff; border-radius: 24px;
+  padding: 20px; margin: 0 20px 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+.chart-title { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 16px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 72px; }
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.bar { width: 100%; border-radius: 6px 6px 0 0; background: var(--ink-6); }
+.bar.hi { background: var(--green); }
+.bar.md { background: var(--gl); }
+.bar-lbl { font-size: 10px; font-weight: 600; color: var(--ink-4); }
+
+/* ── AI TIP CARD ── */
+.ai-card {
+  margin: 0 20px; padding: 18px;
+  background: var(--hero-grad); border-radius: 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.ai-ico {
+  width: 48px; height: 48px; border-radius: 16px;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+
+/* ── FILTER CHIPS ── */
+.filter-row { display: flex; gap: 8px; padding: 0 20px 16px; overflow-x: auto; scrollbar-width: none; }
+.filter-row::-webkit-scrollbar { display: none; }
+.fchip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 700; white-space: nowrap;
+  cursor: pointer; transition: all 0.15s;
+  border: 1.5px solid transparent; flex-shrink: 0;
+}
+.fchip.on { background: var(--green); color: #fff; }
+.fchip:not(.on) { background: #fff; color: var(--ink-3); border-color: var(--ink-6); }
+
+/* ── RING CHART ── */
+.ring-row { display: flex; align-items: center; gap: 16px; }
+.ring-legend { flex: 1; }
+.ring-stat { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ring-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.ring-lbl { font-size: 13px; color: var(--ink-3); font-weight: 500; flex: 1; }
+.ring-val { font-size: 13px; font-weight: 800; color: var(--ink); }
+
+/* ── FIXED GRADIENT TOPBAR ── */
+.grad-topbar {
+  background: var(--hero-grad);
+  padding: 0 20px 20px; flex-shrink: 0;
+}
+.tb-inner {
+  display: flex; align-items: center; gap: 12px;
+  padding-top: 12px;
+}
+.tb-back {
+  width: 40px; height: 40px; border-radius: 14px;
+  background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: #fff; cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+}
+.tb-back:active { background: rgba(255,255,255,0.28); transform: scale(0.92); }
+.tb-title { flex: 1; font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
+.tb-action {
+  font-size: 13px; font-weight: 700; color: #fff;
+  background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px; padding: 7px 14px; cursor: pointer;
+  font-family: var(--font);
+}
+
+/* ── PAY SCREEN ── */
+.pay-card {
+  background: #fff; border-radius: 28px;
+  padding: 24px; margin: -24px 20px 0;
+  position: relative; z-index: 10;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.13);
+}
+.pay-lbl { font-size: 11px; font-weight: 700; color: var(--ink-4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.pay-opt {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px; border-radius: 16px;
+  cursor: pointer; transition: all 0.15s;
+  border: 2px solid transparent; margin-bottom: 8px;
+}
+.pay-opt:last-child { margin-bottom: 0; }
+.pay-opt.sel { border-color: var(--green); background: var(--green-50); }
+.pay-opt-ico { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.pay-opt-info { flex: 1; }
+.pay-opt-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.pay-opt-amt  { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+.pay-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--ink-5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff;
+}
+.pay-check.on { background: var(--green); border-color: var(--green); }
+
+.amt-wrap {
+  background: var(--canvas); border-radius: 16px;
+  padding: 18px; margin-top: 16px; text-align: center;
+}
+.amt-prefix { font-size: 30px; font-weight: 700; color: var(--ink-4); }
+.amt-input {
+  font-size: 42px; font-weight: 800; color: var(--ink);
+  background: none; border: none; outline: none;
+  width: 130px; text-align: center;
+  font-family: var(--font); letter-spacing: -1.5px;
+}
+
+.hsa-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px; background: var(--green-50);
+  border-radius: 16px; margin-top: 16px;
+  border: 1.5px solid #A7F3D0;
+}
+.hsa-ico { font-size: 24px; }
+.hsa-info { flex: 1; }
+.hsa-title { font-size: 14px; font-weight: 700; color: var(--green-dk); }
+.hsa-bal   { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.toggle {
+  width: 46px; height: 26px; background: var(--ink-5);
+  border-radius: 13px; position: relative;
+  cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--green); }
+.toggle::after {
+  content: ''; width: 20px; height: 20px;
+  background: #fff; border-radius: 50%;
+  position: absolute; top: 3px; left: 3px;
+  transition: left 0.2s var(--ease-spring);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+.toggle.on::after { left: 23px; }
+
+.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.m-card {
+  padding: 14px; border-radius: 16px;
+  border: 2px solid var(--ink-6); cursor: pointer;
+  transition: all 0.15s; display: flex; flex-direction: column; gap: 7px;
+}
+.m-card.sel { border-color: var(--green); background: var(--green-50); }
+.m-ico  { font-size: 22px; }
+.m-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.m-dtl  { font-size: 11px; color: var(--ink-4); font-weight: 500; }
+
+/* ── PROFILE SCREEN ── */
+.prof-hero {
+  background: var(--hero-grad);
+  padding: 54px 24px 72px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.prof-av {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 3px solid rgba(255,255,255,0.55);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; color: #fff;
+  margin: 0 auto 14px; position: relative;
+}
+.prof-av-ring {
+  position: absolute; inset: -8px; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(255,255,255,0.8);
+  border-right-color: rgba(255,255,255,0.3);
+  animation: spin 5s linear infinite;
+}
+.prof-name   { font-size: 24px; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
+.prof-email  { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.prof-member {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 12px; font-weight: 600; color: #fff; margin-top: 10px;
+}
+.prof-stats-card {
+  background: #fff; border-radius: 28px;
+  margin: -50px 20px 0; padding: 22px;
+  position: relative; z-index: 10;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.13);
+}
+.prof-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.prof-stat { text-align: center; padding: 6px 4px; }
+.prof-stat + .prof-stat { border-left: 1px solid var(--ink-6); }
+.prof-stat-val { font-size: 26px; font-weight: 800; color: var(--green); letter-spacing: -0.8px; }
+.prof-stat-lbl { font-size: 11px; color: var(--ink-4); font-weight: 600; margin-top: 3px; }
+
+/* ── ACHIEVEMENTS ── */
+.ach-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; background: #fff;
+  margin: 0 20px 10px; border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+.ach-ico {
+  width: 52px; height: 52px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+.ach-info { flex: 1; }
+.ach-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+.ach-desc { font-size: 12px; color: var(--ink-4); font-weight: 500; margin-top: 2px; }
+.ach-badge {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+
+/* ── SETTINGS ── */
+.settings-card {
+  background: #fff; border-radius: 20px;
+  margin: 0 20px 10px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+.set-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 15px 20px; cursor: pointer; transition: background 0.1s;
+}
+.set-row:active { background: var(--canvas); }
+.set-ico {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.set-lbl { flex: 1; font-size: 15px; font-weight: 600; color: var(--ink); }
+.set-arr { font-size: 12px; color: var(--ink-5); }
+.set-divider { height: 1px; background: var(--ink-6); margin: 0 20px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; width: 100%; height: 58px; border-radius: 18px;
+  border: none; cursor: pointer; font-family: var(--font);
+  font-size: 16px; font-weight: 800; letter-spacing: -0.2px;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(0.975); }
+.btn-primary { background: linear-gradient(135deg, #5CB85C, #2d8b3e); color: #fff; box-shadow: 0 8px 24px rgba(92,184,92,0.35); }
+.btn-ghost { background: var(--canvas); color: var(--ink-3); }
+
+/* ── NAV ── */
+.nav {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+  background: #fff; border-top: 1px solid rgba(0,0,0,0.06);
+  display: flex; z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 5px; border: none; background: none;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  padding: 8px 4px 12px; position: relative; transition: all 0.15s;
+}
+.nav-item:active { opacity: 0.55; transform: scale(0.9); }
+.nav-item.active::before {
+  content: ''; position: absolute; top: 6px; left: 50%;
+  transform: translateX(-50%);
+  width: 34px; height: 4px; background: var(--green); border-radius: 2px;
+}
+.nav-ico  { font-size: 20px; color: var(--ink-5); transition: color 0.15s; }
+.nav-lbl  { font-size: 10.5px; font-weight: 700; color: var(--ink-4); }
+.nav-item.active .nav-ico { color: var(--green); }
+.nav-item.active .nav-lbl { color: var(--green); }
+.nav-gap  { flex: 1; }
+
+/* FAB */
+.fab {
+  position: absolute; bottom: 50px; left: 50%;
+  transform: translateX(-50%);
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(145deg, #5CB85C, #1a5c2a);
+  border: 4px solid var(--canvas);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff;
+  box-shadow: 0 8px 24px rgba(92,184,92,0.5);
+  cursor: pointer; z-index: 101;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s var(--ease-spring), box-shadow 0.15s;
+}
+.fab:active { transform: translateX(-50%) scale(0.88); box-shadow: 0 4px 12px rgba(92,184,92,0.38); }
+
+/* ── CELEBRATE OVERLAY ── */
+.cel-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+  z-index: 400; display: none;
+  align-items: flex-end; justify-content: center;
+}
+.cel-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.cel-sheet {
+  background: #fff; border-radius: 32px 32px 0 0;
+  padding: 36px 28px 52px; width: 100%;
+  text-align: center;
+  animation: slideUp 0.4s var(--ease-out);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.cel-icon {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: linear-gradient(145deg, #DCFCE7, #86EFAC);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px; margin: 0 auto 20px;
+  box-shadow: 0 12px 40px rgba(92,184,92,0.25);
+  animation: popIn 0.55s var(--ease-spring) 0.15s both;
+}
+@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+.cel-title  { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; margin-bottom: 6px; }
+.cel-amount { font-size: 50px; font-weight: 800; color: var(--green); letter-spacing: -2px; margin-bottom: 4px; }
+.cel-sub    { font-size: 14px; color: var(--ink-3); line-height: 1.55; margin-bottom: 28px; }
+.confetti-layer { position: absolute; top: 0; left: 0; right: 0; height: 55%; pointer-events: none; overflow: hidden; }
+.conf {
+  position: absolute; border-radius: 2px;
+  animation: confFall 2s ease-out forwards;
+}
+@keyframes confFall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(320px) rotate(720deg); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Back to hub -->
+<a href="index.html" style="
+  position:fixed; top:20px; left:20px; z-index:9999;
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,0.12); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.2); color:#fff;
+  padding:8px 16px; border-radius:20px;
+  font-size:12px; font-weight:600; text-decoration:none;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:background .2s;
+" onmouseover="this.style.background='rgba(255,255,255,0.22)'"
+   onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+  ← Back to Hub
+</a>
+
+<div class="device">
+
+  <!-- Status bar -->
+  <div class="statusbar light" id="sb">
+    <span>9:41</span>
+    <div class="sb-icons">
+      <i class="fa-solid fa-signal" style="font-size:11px"></i>
+      <i class="fa-solid fa-wifi"   style="font-size:11px"></i>
+      <i class="fa-solid fa-battery-full" style="font-size:13px"></i>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SCREEN: HOME
+  ════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-home">
+    <div class="scroll" style="background: var(--canvas);">
+
+      <!-- Hero (scrolls with content) -->
+      <div class="hero">
+        <div class="hero-blob1"></div>
+        <div class="hero-blob2"></div>
+        <div class="hero-top">
+          <div>
+            <div class="hero-greet">Good morning,</div>
+            <div class="hero-name">Sarah Johnson</div>
+          </div>
+          <div class="hero-right">
+            <div class="hero-bell">
+              <i class="fa-regular fa-bell"></i>
+              <div class="hero-bell-dot"></div>
+            </div>
+            <div class="hero-avatar">
+              SJ
+              <div class="hero-avatar-ring"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-badges">
+          <div class="hero-badge"><i class="fa-solid fa-shield-heart" style="font-size:10px"></i> Aetna PPO</div>
+          <div class="hero-badge"><i class="fa-solid fa-leaf" style="font-size:10px"></i> HSA Connected</div>
+        </div>
+      </div>
+
+      <!-- Floating balance card -->
+      <div class="bal-card">
+        <div class="bal-label">Total Balance Due</div>
+        <div class="bal-amount">
+          <sup>$</sup>284<span class="bal-cents">.50</span>
+        </div>
+        <div class="bal-sub">Across 3 bills &nbsp;·&nbsp; Earliest due May 1</div>
+        <div class="bal-stats">
+          <div class="bal-stat">
+            <span class="bal-stat-val">3</span>
+            <span class="bal-stat-lbl">Open Bills</span>
+          </div>
+          <div class="bal-stat">
+            <span class="bal-stat-val g">2</span>
+            <span class="bal-stat-lbl">Paid This Mo.</span>
+          </div>
+          <div class="bal-stat">
+            <span class="bal-stat-val g">$42</span>
+            <span class="bal-stat-lbl">HSA Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="qa-grid">
+        <div class="qa-item" onclick="showScreen('screen-pay')">
+          <div class="qa-ico" style="background:#DCFCE7;color:#166534"><i class="fa-solid fa-bolt"></i></div>
+          <span class="qa-lbl">Quick Pay</span>
+        </div>
+        <div class="qa-item" onclick="showScreen('screen-bills')">
+          <div class="qa-ico" style="background:#DBEAFE;color:#1D4ED8"><i class="fa-solid fa-receipt"></i></div>
+          <span class="qa-lbl">My Bills</span>
+        </div>
+        <div class="qa-item">
+          <div class="qa-ico" style="background:#FEF3C7;color:#B45309"><i class="fa-solid fa-robot"></i></div>
+          <span class="qa-lbl">AI Help</span>
+        </div>
+        <div class="qa-item">
+          <div class="qa-ico" style="background:#FCE7F3;color:#9D174D"><i class="fa-solid fa-calendar-days"></i></div>
+          <span class="qa-lbl">Schedule</span>
+        </div>
+      </div>
+
+      <!-- Payment activity chart -->
+      <div class="chart-card" style="margin-top:24px;">
+        <div class="chart-title">Payment Activity</div>
+        <div style="display:flex;align-items:flex-end;gap:20px;">
+          <div style="flex:1">
+            <div class="bar-chart">
+              <div class="bar-wrap"><div class="bar" style="height:38px"></div><span class="bar-lbl">Dec</span></div>
+              <div class="bar-wrap"><div class="bar hi" style="height:56px"></div><span class="bar-lbl">Jan</span></div>
+              <div class="bar-wrap"><div class="bar md" style="height:36px"></div><span class="bar-lbl">Feb</span></div>
+              <div class="bar-wrap"><div class="bar hi" style="height:66px"></div><span class="bar-lbl">Mar</span></div>
+              <div class="bar-wrap"><div class="bar hi" style="height:50px"></div><span class="bar-lbl">Apr</span></div>
+              <div class="bar-wrap"><div class="bar" style="height:18px;opacity:.35"></div><span class="bar-lbl">May</span></div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;padding-bottom:20px">
+            <div style="font-size:11px;color:var(--ink-4);font-weight:600;margin-bottom:4px">Cleared</div>
+            <div style="font-size:36px;font-weight:800;color:var(--ink);letter-spacing:-1.5px;line-height:1">82<span style="font-size:18px;color:var(--green)">%</span></div>
+            <div style="font-size:11px;color:var(--ink-3)">this period</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:10px">
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-3);font-weight:600">
+            <div style="width:10px;height:10px;border-radius:3px;background:var(--green)"></div> Paid
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-3);font-weight:600">
+            <div style="width:10px;height:10px;border-radius:3px;background:#86EFAC"></div> HSA Routed
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent bills -->
+      <div class="sec-head">
+        <div class="sec-title">Recent Bills</div>
+        <div class="sec-link" onclick="showScreen('screen-bills')">See All →</div>
+      </div>
+
+      <div class="bill-row" onclick="showScreen('screen-pay')">
+        <div class="b-ico" style="background:#FEE2E2">
+          <i class="fa-solid fa-stethoscope" style="color:#DC2626"></i>
+          <div class="b-badge" style="background:#DC2626">!</div>
+        </div>
+        <div class="b-info">
+          <div class="b-name">Dr. Martinez — Office Visit</div>
+          <div class="b-date">Due May 1, 2026</div>
+        </div>
+        <div class="b-right">
+          <div class="b-amt">$145.00</div>
+          <div class="b-chip" style="background:#FEE2E2;color:#DC2626">Overdue</div>
+        </div>
+      </div>
+
+      <div class="bill-row">
+        <div class="b-ico" style="background:#EDE9FE">
+          <i class="fa-solid fa-syringe" style="color:#7C3AED"></i>
+        </div>
+        <div class="b-info">
+          <div class="b-name">Botox Treatment</div>
+          <div class="b-date">Due May 15, 2026</div>
+          <div class="b-prog"><div class="b-prog-fill" style="width:33%"></div></div>
+        </div>
+        <div class="b-right">
+          <div class="b-amt">$89.50</div>
+          <div class="b-chip" style="background:#EDE9FE;color:#7C3AED">Plan</div>
+        </div>
+      </div>
+
+      <div class="bill-row">
+        <div class="b-ico" style="background:#DCFCE7">
+          <i class="fa-solid fa-vial" style="color:#166534"></i>
+        </div>
+        <div class="b-info">
+          <div class="b-name">Lab Work — LabCorp</div>
+          <div class="b-date">Due May 20, 2026</div>
+        </div>
+        <div class="b-right">
+          <div class="b-amt">$50.00</div>
+          <div class="b-chip" style="background:#DCFCE7;color:#166534"><i class="fa-solid fa-leaf" style="font-size:8px"></i> HSA</div>
+        </div>
+      </div>
+
+      <!-- AI tip -->
+      <div class="ai-card" style="margin-top:8px;margin-bottom:110px">
+        <div class="ai-ico">🤖</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:3px">AI Tip</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.82);line-height:1.55">Route your $50 LabCorp bill through your HSA to save ~$12 in taxes this month.</div>
+        </div>
+      </div>
+
+    </div><!-- /scroll -->
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SCREEN: BILLS
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-bills">
+    <!-- Fixed gradient topbar -->
+    <div class="grad-topbar" style="padding-top:54px">
+      <div class="tb-inner">
+        <button class="tb-back" onclick="showScreen('screen-home')"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="tb-title">My Bills</div>
+        <button class="tb-action">Filter</button>
+      </div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas)">
+
+      <div class="filter-row" style="padding-top:20px">
+        <div class="fchip on">All Bills</div>
+        <div class="fchip">Medical</div>
+        <div class="fchip">Cosmetic</div>
+        <div class="fchip">Paid</div>
+        <div class="fchip">HSA Only</div>
+      </div>
+
+      <!-- Ring summary -->
+      <div class="chart-card">
+        <div class="chart-title">Payment Summary</div>
+        <div class="ring-row">
+          <svg viewBox="0 0 100 100" style="width:88px;height:88px;flex-shrink:0;transform:rotate(-90deg)">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#E5E7EB" stroke-width="12"/>
+            <!-- 82% → dashoffset = 251.33 × 0.18 = 45.2 -->
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#5CB85C" stroke-width="12"
+              stroke-dasharray="251.33" stroke-dashoffset="45"
+              stroke-linecap="round"/>
+            <text x="50" y="46" text-anchor="middle" font-size="15" font-weight="800" fill="#111827" font-family="Plus Jakarta Sans" transform="rotate(90 50 50)">82%</text>
+            <text x="50" y="60" text-anchor="middle" font-size="9" fill="#9CA3AF" font-family="Plus Jakarta Sans" transform="rotate(90 50 50)">cleared</text>
+          </svg>
+          <div class="ring-legend">
+            <div class="ring-stat">
+              <div class="ring-dot" style="background:#5CB85C"></div>
+              <span class="ring-lbl">Paid</span>
+              <span class="ring-val">$312.00</span>
+            </div>
+            <div class="ring-stat">
+              <div class="ring-dot" style="background:#FCD34D"></div>
+              <span class="ring-lbl">Pending</span>
+              <span class="ring-val">$89.50</span>
+            </div>
+            <div class="ring-stat" style="margin-bottom:0">
+              <div class="ring-dot" style="background:#FCA5A5"></div>
+              <span class="ring-lbl">Overdue</span>
+              <span class="ring-val">$145.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-head"><div class="sec-title">3 Active Bills</div></div>
+
+      <!-- Overdue -->
+      <div class="bill-row" onclick="showScreen('screen-pay')">
+        <div class="b-ico" style="background:#FEE2E2">
+          <i class="fa-solid fa-stethoscope" style="color:#DC2626"></i>
+          <div class="b-badge" style="background:#DC2626">!</div>
+        </div>
+        <div class="b-info">
+          <div class="b-name">Dr. Martinez — Office Visit</div>
+          <div class="b-date">Integrated Derm · Apr 12, 2026</div>
+        </div>
+        <div class="b-right">
+          <div class="b-amt">$145.00</div>
+          <div class="b-chip" style="background:#FEE2E2;color:#DC2626">Overdue</div>
+        </div>
+      </div>
+
+      <!-- Payment plan -->
+      <div class="bill-row">
+        <div class="b-ico" style="background:#EDE9FE">
+          <i class="fa-solid fa-syringe" style="color:#7C3AED"></i>
+        </div>
+        <div class="b-info">
+          <div class="b-name">Botox Treatment</div>
+          <div class="b-date">Integrated Derm · Apr 18, 2026</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+            <div class="b-prog" style="flex:1"><div class="b-prog-fill" style="width:33%"></div></div>
+            <span style="font-size:10px;color:var(--ink-4);font-weight:600">1 of 3</span>
+          </div>
+        </div>
+        <div class="b-right">
+          <div class="b-amt">$89.50</div>
+          <div class="b-chip" style="background:#EDE9FE;color:#7C3AED">Plan</div>
+        </div>
+      </div>
+
+      <!-- HSA -->
+      <div class="bill-row">
+        <div class="b-ico" style="background:#DCFCE7">
+          <i class="fa-solid fa-vial" style="color:#166534"></i>
+        </div>
+        <div class="b-info">
+          <div class="b-name">Lab Work — LabCorp</div>
+          <div class="b-date">LabCorp · Apr 20, 2026</div>
+        </div>
+        <div class="b-right">
+          <div class="b-amt">$50.00</div>
+          <div class="b-chip" style="background:#DCFCE7;color:#166534"><i class="fa-solid fa-leaf" style="font-size:8px"></i> HSA</div>
+        </div>
+      </div>
+
+      <div class="sec-head"><div class="sec-title">Recently Paid</div></div>
+
+      <div class="bill-row" style="opacity:.55">
+        <div class="b-ico" style="background:#F3F4F6"><i class="fa-solid fa-check" style="color:var(--ink-4)"></i></div>
+        <div class="b-info">
+          <div class="b-name">Annual Checkup</div>
+          <div class="b-date">Paid Mar 28 · $75.00</div>
+        </div>
+        <div class="b-right">
+          <div class="b-chip" style="background:#DCFCE7;color:#166534">Paid ✓</div>
+        </div>
+      </div>
+
+      <div class="bill-row" style="opacity:.55;margin-bottom:110px">
+        <div class="b-ico" style="background:#F3F4F6"><i class="fa-solid fa-check" style="color:var(--ink-4)"></i></div>
+        <div class="b-info">
+          <div class="b-name">Skin Biopsy</div>
+          <div class="b-date">Paid Mar 10 · $210.00</div>
+        </div>
+        <div class="b-right">
+          <div class="b-chip" style="background:#DCFCE7;color:#166534">Paid ✓</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SCREEN: PAY
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-pay">
+    <div class="grad-topbar" style="padding-top:54px;padding-bottom:36px">
+      <div class="tb-inner">
+        <button class="tb-back" onclick="showScreen('screen-home')"><i class="fa-solid fa-chevron-left"></i></button>
+        <div>
+          <div class="tb-title">Make Payment</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:2px">Choose bill &amp; amount</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas)">
+
+      <!-- Bill selector -->
+      <div class="pay-card">
+        <div class="pay-lbl">Select Bill</div>
+        <div class="pay-opt sel" id="po1" onclick="pickBill(1)">
+          <div class="pay-opt-ico" style="background:#FEE2E2"><i class="fa-solid fa-stethoscope" style="color:#DC2626"></i></div>
+          <div class="pay-opt-info">
+            <div class="pay-opt-name">Dr. Martinez — Visit</div>
+            <div class="pay-opt-amt">$145.00 · overdue</div>
+          </div>
+          <div class="pay-check on" id="pc1"><i class="fa-solid fa-check"></i></div>
+        </div>
+        <div class="pay-opt" id="po2" onclick="pickBill(2)">
+          <div class="pay-opt-ico" style="background:#EDE9FE"><i class="fa-solid fa-syringe" style="color:#7C3AED"></i></div>
+          <div class="pay-opt-info">
+            <div class="pay-opt-name">Botox Treatment</div>
+            <div class="pay-opt-amt">$89.50 · payment plan</div>
+          </div>
+          <div class="pay-check" id="pc2"></div>
+        </div>
+        <div class="pay-opt" id="po3" onclick="pickBill(3)">
+          <div class="pay-opt-ico" style="background:#DCFCE7"><i class="fa-solid fa-vial" style="color:#166534"></i></div>
+          <div class="pay-opt-info">
+            <div class="pay-opt-name">Lab Work — LabCorp</div>
+            <div class="pay-opt-amt">$50.00</div>
+          </div>
+          <div class="pay-check" id="pc3"></div>
+        </div>
+      </div>
+
+      <!-- Amount + HSA -->
+      <div style="background:#fff;border-radius:24px;padding:20px;margin:16px 20px 0;box-shadow:0 2px 12px rgba(0,0,0,.05)">
+        <div class="pay-lbl">Amount</div>
+        <div class="amt-wrap">
+          <span class="amt-prefix">$</span>
+          <input class="amt-input" type="number" value="145" id="payAmt" min="1">
+        </div>
+        <div class="hsa-row">
+          <div class="hsa-ico">🌿</div>
+          <div class="hsa-info">
+            <div class="hsa-title">Route via HSA / FSA</div>
+            <div class="hsa-bal">$842.00 available</div>
+          </div>
+          <div class="toggle on" id="hsaTog" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <!-- Payment methods -->
+      <div style="background:#fff;border-radius:24px;padding:20px;margin:16px 20px 0;box-shadow:0 2px 12px rgba(0,0,0,.05)">
+        <div class="pay-lbl">Payment Method</div>
+        <div class="method-grid">
+          <div class="m-card sel" id="mc1" onclick="pickMethod(1)">
+            <div class="m-ico">💳</div>
+            <div class="m-name">HSA Card</div>
+            <div class="m-dtl">••• 4892</div>
+          </div>
+          <div class="m-card" id="mc2" onclick="pickMethod(2)">
+            <div class="m-ico">🏦</div>
+            <div class="m-name">Bank Account</div>
+            <div class="m-dtl">Chase ••• 3341</div>
+          </div>
+          <div class="m-card" id="mc3" onclick="pickMethod(3)">
+            <div class="m-ico">📱</div>
+            <div class="m-name">Apple Pay</div>
+            <div class="m-dtl">Touch ID</div>
+          </div>
+          <div class="m-card" id="mc4" onclick="pickMethod(4)">
+            <div class="m-ico">🔄</div>
+            <div class="m-name">Payment Plan</div>
+            <div class="m-dtl">3 installments</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pay button -->
+      <div style="padding:20px 20px 110px">
+        <button class="btn btn-primary" id="payBtn" onclick="doPay()">
+          <i class="fa-solid fa-lock" style="font-size:14px"></i>
+          Pay $145.00 Securely
+        </button>
+        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--ink-4);font-weight:600">
+          <i class="fa-solid fa-shield-halved"></i>&nbsp; 256-bit encrypted · HIPAA compliant
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       SCREEN: PROFILE
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-profile">
+    <div class="scroll" style="background:var(--canvas)">
+
+      <div class="prof-hero">
+        <div class="hero-blob1"></div>
+        <div class="hero-blob2"></div>
+        <div style="position:relative;z-index:1">
+          <div class="prof-av">
+            SJ
+            <div class="prof-av-ring"></div>
+          </div>
+          <div class="prof-name">Sarah Johnson</div>
+          <div class="prof-email">sarah.j@email.com</div>
+          <div class="prof-member"><i class="fa-solid fa-star" style="font-size:10px"></i> Member since 2023</div>
+        </div>
+      </div>
+
+      <!-- Stats card -->
+      <div class="prof-stats-card">
+        <div class="prof-stats-grid">
+          <div class="prof-stat">
+            <div class="prof-stat-val">12</div>
+            <div class="prof-stat-lbl">Bills Paid</div>
+          </div>
+          <div class="prof-stat">
+            <div class="prof-stat-val">$42</div>
+            <div class="prof-stat-lbl">HSA Saved</div>
+          </div>
+          <div class="prof-stat">
+            <div class="prof-stat-val" style="color:var(--ink)">8🔥</div>
+            <div class="prof-stat-lbl">Day Streak</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="sec-head">
+        <div class="sec-title">Achievements</div>
+        <div class="sec-link">View All →</div>
+      </div>
+
+      <div class="ach-row">
+        <div class="ach-ico" style="background:linear-gradient(135deg,#DCFCE7,#86EFAC)">🏆</div>
+        <div class="ach-info">
+          <div class="ach-name">On-Time Payer</div>
+          <div class="ach-desc">Paid 5 bills before due date</div>
+        </div>
+        <div class="ach-badge" style="background:#DCFCE7"><i class="fa-solid fa-check" style="color:#166534;font-size:12px"></i></div>
+      </div>
+
+      <div class="ach-row">
+        <div class="ach-ico" style="background:linear-gradient(135deg,#DBEAFE,#93C5FD)">🌿</div>
+        <div class="ach-info">
+          <div class="ach-name">HSA Champion</div>
+          <div class="ach-desc">Routed 3 bills through HSA / FSA</div>
+        </div>
+        <div class="ach-badge" style="background:#DBEAFE"><i class="fa-solid fa-check" style="color:#1D4ED8;font-size:12px"></i></div>
+      </div>
+
+      <div class="ach-row">
+        <div class="ach-ico" style="background:linear-gradient(135deg,#FEF3C7,#FCD34D)">⚡</div>
+        <div class="ach-info">
+          <div class="ach-name">Quick Pay Pro</div>
+          <div class="ach-desc">Paid within 24 hrs — 3 times</div>
+        </div>
+        <div class="ach-badge" style="background:#FEF3C7"><i class="fa-solid fa-check" style="color:#D97706;font-size:12px"></i></div>
+      </div>
+
+      <div class="ach-row" style="opacity:.45">
+        <div class="ach-ico" style="background:#F3F4F6">🔒</div>
+        <div class="ach-info">
+          <div class="ach-name">Zero Balance Hero</div>
+          <div class="ach-desc">Clear all bills in one month</div>
+        </div>
+        <div class="ach-badge" style="background:#F3F4F6"><i class="fa-solid fa-lock" style="color:var(--ink-4);font-size:12px"></i></div>
+      </div>
+
+      <!-- Account settings -->
+      <div class="sec-head"><div class="sec-title">Account</div></div>
+
+      <div class="settings-card">
+        <div class="set-row">
+          <div class="set-ico" style="background:#DCFCE7"><i class="fa-solid fa-bell" style="color:#166534"></i></div>
+          <span class="set-lbl">Notifications</span>
+          <i class="fa-solid fa-chevron-right set-arr"></i>
+        </div>
+        <div class="set-divider"></div>
+        <div class="set-row">
+          <div class="set-ico" style="background:#DBEAFE"><i class="fa-solid fa-link" style="color:#1D4ED8"></i></div>
+          <span class="set-lbl">Connected Accounts</span>
+          <i class="fa-solid fa-chevron-right set-arr"></i>
+        </div>
+        <div class="set-divider"></div>
+        <div class="set-row">
+          <div class="set-ico" style="background:#EDE9FE"><i class="fa-solid fa-shield-halved" style="color:#7C3AED"></i></div>
+          <span class="set-lbl">Privacy &amp; Security</span>
+          <i class="fa-solid fa-chevron-right set-arr"></i>
+        </div>
+        <div class="set-divider"></div>
+        <div class="set-row">
+          <div class="set-ico" style="background:#FEF3C7"><i class="fa-solid fa-circle-question" style="color:#D97706"></i></div>
+          <span class="set-lbl">Help &amp; Support</span>
+          <i class="fa-solid fa-chevron-right set-arr"></i>
+        </div>
+      </div>
+
+      <div style="padding:8px 20px 110px;text-align:center">
+        <button style="background:none;border:none;color:#DC2626;font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer">Sign Out</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── NAV ── -->
+  <nav class="nav">
+    <button class="nav-item active" id="ni-home" onclick="showScreen('screen-home')">
+      <i class="fa-solid fa-house nav-ico"></i>
+      <span class="nav-lbl">Home</span>
+    </button>
+    <button class="nav-item" id="ni-bills" onclick="showScreen('screen-bills')">
+      <i class="fa-solid fa-receipt nav-ico"></i>
+      <span class="nav-lbl">Bills</span>
+    </button>
+    <div class="nav-gap"></div>
+    <button class="nav-item" id="ni-profile" onclick="showScreen('screen-profile')">
+      <i class="fa-solid fa-user nav-ico"></i>
+      <span class="nav-lbl">Profile</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" id="nav-fab" onclick="showScreen('screen-pay')">
+    <i class="fa-solid fa-bolt"></i>
+  </button>
+
+  <!-- ── CELEBRATION OVERLAY ── -->
+  <div class="cel-overlay" id="celOverlay" onclick="closeCel()">
+    <div class="confetti-layer" id="confLayer"></div>
+    <div class="cel-sheet" onclick="event.stopPropagation()">
+      <div class="cel-icon">🎉</div>
+      <div class="cel-title">Payment Sent!</div>
+      <div class="cel-amount" id="celAmt">$145.00</div>
+      <div class="cel-sub" id="celSub">Dr. Martinez — Office Visit<br>Your HSA saved an extra <strong>$36</strong> in taxes!</div>
+      <button class="btn btn-primary" onclick="closeCel()" style="margin-bottom:10px">Done</button>
+      <button class="btn btn-ghost" onclick="closeCel()">View Receipt</button>
+    </div>
+  </div>
+
+</div><!-- /device -->
+
+<script>
+const NAV_MAP = {
+  'screen-home':    'ni-home',
+  'screen-bills':   'ni-bills',
+  'screen-profile': 'ni-profile',
+};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const sb = document.getElementById('sb');
+  sb.className = 'statusbar light';
+  if (NAV_MAP[id]) document.getElementById(NAV_MAP[id]).classList.add('active');
+}
+
+const BILL_AMTS = { 1: 145, 2: 89.50, 3: 50 };
+const BILL_NAMES = { 1: 'Dr. Martinez — Office Visit', 2: 'Botox Treatment', 3: 'Lab Work — LabCorp' };
+
+function pickBill(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('po'+i).classList.remove('sel');
+    const c = document.getElementById('pc'+i);
+    c.classList.remove('on'); c.innerHTML = '';
+  });
+  document.getElementById('po'+n).classList.add('sel');
+  const c = document.getElementById('pc'+n);
+  c.classList.add('on'); c.innerHTML = '<i class="fa-solid fa-check"></i>';
+  const amt = BILL_AMTS[n];
+  document.getElementById('payAmt').value = amt;
+  document.getElementById('payBtn').innerHTML = '<i class="fa-solid fa-lock" style="font-size:14px"></i> Pay $' + amt.toFixed(2) + ' Securely';
+  window._selBill = n;
+}
+
+function pickMethod(n) {
+  [1,2,3,4].forEach(i => document.getElementById('mc'+i).classList.remove('sel'));
+  document.getElementById('mc'+n).classList.add('sel');
+}
+
+function doPay() {
+  const n = window._selBill || 1;
+  const amt = parseFloat(document.getElementById('payAmt').value) || BILL_AMTS[n];
+  document.getElementById('celAmt').textContent = '$' + amt.toFixed(2);
+  document.getElementById('celSub').innerHTML = BILL_NAMES[n] + '<br>Your HSA saved an extra <strong>$' + (amt * 0.25).toFixed(0) + '</strong> in taxes!';
+  document.getElementById('celOverlay').classList.add('show');
+  spawnConfetti();
+}
+
+function closeCel() {
+  document.getElementById('celOverlay').classList.remove('show');
+  showScreen('screen-home');
+}
+
+function spawnConfetti() {
+  const layer = document.getElementById('confLayer');
+  layer.innerHTML = '';
+  const colors = ['#5CB85C','#86EFAC','#DCFCE7','#FCD34D','#93C5FD','#F9A8D4','#FED7AA'];
+  for (let i = 0; i < 48; i++) {
+    const el = document.createElement('div');
+    el.className = 'conf';
+    const size = 5 + Math.random() * 7;
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation-delay:${Math.random()*.9}s;
+      animation-duration:${1.6+Math.random()}s;
+    `;
+    layer.appendChild(el);
+  }
+}
+
+// Filter chip toggle
+document.querySelectorAll('.fchip').forEach(c => {
+  c.addEventListener('click', function() {
+    document.querySelectorAll('.fchip').forEach(x => x.classList.remove('on'));
+    this.classList.add('on');
+  });
+});
+
+// Init
+window._selBill = 1;
+showScreen('screen-home');
+</script>
+</body>
+</html>

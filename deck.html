@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PayMyDerm 2026 - Stakeholder Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:  #5CB85C;
+  --teal:   #16A885;
+  --accent: #10B981;
+  --dark:   #0F172A;
+  --light:  #F8FAFC;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+  background: #0C0E13;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── FIXED 960×540 CANVAS ──────────────────────────────── */
+#slides {
+  width: 960px;
+  height: 540px;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 40px 120px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06);
+  transform-origin: center center;
+}
+
+/* ── SLIDE SHELL ─────────────────────────────────────────── */
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+  opacity: 0; pointer-events: none;
+  transition: opacity .38s ease, transform .38s ease;
+  transform: translateX(24px);
+  color: #fff;
+}
+.slide.active  { opacity: 1; pointer-events: all; transform: translateX(0); }
+.slide.exit-left { opacity: 0; transform: translateX(-24px); pointer-events: none; }
+
+/* ── CHROME (outside canvas) ─────────────────────────────── */
+#logo-bug {
+  position: fixed; top: 18px; left: 22px;
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,.28);
+  letter-spacing: .04em; z-index: 200;
+}
+#counter {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; font-weight: 600; letter-spacing: .1em;
+  color: rgba(255,255,255,.3); background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.07); padding: 5px 14px;
+  border-radius: 20px; z-index: 200;
+}
+#nav-prev, #nav-next {
+  position: fixed; bottom: 20px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.55); padding: 8px 20px; border-radius: 7px;
+  font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: .04em;
+  z-index: 200; transition: all .2s; font-family: inherit;
+}
+#nav-prev { left: 20px; }
+#nav-next { right: 20px; }
+#nav-prev:hover, #nav-next:hover { background: rgba(92,184,92,.16); border-color: rgba(92,184,92,.35); color: #fff; }
+#nav-prev:disabled, #nav-next:disabled { opacity: .18; cursor: not-allowed; }
+
+/* App Switcher */
+#app-switcher { position: fixed; top: 14px; right: 16px; z-index: 200; }
+#switcher-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.13);
+  color: rgba(255,255,255,.6); padding: 6px 13px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; cursor: pointer; backdrop-filter: blur(10px);
+  transition: all .2s; font-family: inherit;
+}
+#switcher-btn:hover { background: rgba(255,255,255,.13); color: #fff; }
+#switcher-menu {
+  display: none; flex-direction: column;
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: rgba(8,14,30,.97); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; padding: 5px; min-width: 168px;
+  backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,.6);
+}
+#app-switcher.open #switcher-menu { display: flex; }
+#switcher-menu a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 11px; border-radius: 7px;
+  color: rgba(255,255,255,.65); font-size: 12px; font-weight: 600;
+  text-decoration: none; transition: background .15s, color .15s;
+}
+#switcher-menu a:hover { background: rgba(255,255,255,.07); color: #fff; }
+#switcher-menu a i { width: 14px; color: var(--green); font-size: 11px; flex-shrink: 0; }
+#switcher-menu .sw-divider { height: 1px; background: rgba(255,255,255,.07); margin: 3px 5px; }
+
+/* ── SHARED ──────────────────────────────────────────────── */
+.eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 10px;
+}
+.slide-title {
+  font-size: 28px; font-weight: 800; letter-spacing: -.02em;
+  line-height: 1.15; margin-bottom: 10px; text-align: center;
+}
+.slide-sub {
+  font-size: 13px; color: rgba(255,255,255,.55);
+  text-align: center; line-height: 1.6; max-width: 560px; margin-bottom: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 1 — COVER
+══════════════════════════════════════════════════════════ */
+#s1 {
+  background: var(--green);
+  padding: 0;
+}
+#s1::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 75% 20%, rgba(255,255,255,.12) 0%, transparent 60%);
+  pointer-events:none;
+}
+#s1 .c-icon   { font-size: 58px; margin-bottom: 16px; filter: drop-shadow(0 4px 20px rgba(0,0,0,.3)); position:relative; }
+#s1 .c-title  { font-size: 54px; font-weight: 900; letter-spacing: -.03em; text-shadow: 0 2px 14px rgba(0,0,0,.2); position:relative; }
+#s1 .c-sub    { font-size: 17px; font-weight: 400; color: rgba(255,255,255,.8); margin-top: 12px; position:relative; }
+#s1 .c-foot   { position:absolute; bottom:26px; font-size: 12px; color: rgba(255,255,255,.38); letter-spacing:.07em; }
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 2 — THE PROBLEM (big stat layout)
+══════════════════════════════════════════════════════════ */
+#s2 { background: var(--dark); padding: 44px 64px; }
+#s2 .stat-row {
+  display: flex; gap: 0; width: 100%; margin-top: 6px; margin-bottom: 28px;
+}
+#s2 .stat-block {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 28px 20px;
+}
+#s2 .stat-block:not(:last-child) { border-right: 1px solid rgba(255,255,255,.07); }
+#s2 .stat-num {
+  font-size: 60px; font-weight: 900; letter-spacing: -.03em;
+  color: var(--green); line-height: 1;
+}
+#s2 .stat-label { font-size: 14px; font-weight: 700; color: #fff; margin-top: 10px; text-align: center; }
+#s2 .stat-desc  { font-size: 12px; color: rgba(255,255,255,.45); margin-top: 6px; text-align: center; line-height: 1.5; max-width: 180px; }
+#s2 .bottom-bar {
+  width: 100%;
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+  border-radius: 8px; padding: 11px 22px;
+  font-size: 13px; font-weight: 600; color: #FCA5A5; text-align: center;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 3 — WHAT WE BUILT (differentiators)
+══════════════════════════════════════════════════════════ */
+#s3 { background: var(--dark); padding: 40px 56px 44px; }
+#s3 .diff-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  width: 100%; margin-top: 8px;
+}
+#s3 .diff-card {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px; padding: 22px 22px;
+  display: flex; align-items: flex-start; gap: 16px;
+}
+#s3 .diff-card.highlight {
+  background: rgba(92,184,92,.08); border-color: rgba(92,184,92,.25);
+}
+#s3 .diff-icon { font-size: 28px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+#s3 .diff-body {}
+#s3 .diff-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+#s3 .diff-text  { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.55; }
+#s3 .diff-badge {
+  display: inline-block; margin-top: 8px;
+  background: rgba(92,184,92,.18); border: 1px solid rgba(92,184,92,.3);
+  color: #A5D6A5; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px; letter-spacing: .05em; text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 4 — UNIFIED BILL (before / after)
+══════════════════════════════════════════════════════════ */
+#s4 { padding: 0; flex-direction: row; align-items: stretch; }
+#s4 .half { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 36px 32px 60px; }
+#s4 .half-l { background: #0B1120; border-right: 1px solid rgba(255,255,255,.07); }
+#s4 .half-r { background: #F8FAFC; color: var(--dark); }
+#s4 .h-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+#s4 .half-l .h-label { color: #F87171; }
+#s4 .half-r .h-label { color: var(--accent); }
+#s4 .h-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+#s4 .half-l .h-title { color: #FF9A9A; }
+#s4 .half-r .h-title { color: #065F46; }
+#s4 .brow { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 7px; margin-bottom: 6px; font-size: 12px; }
+#s4 .brow.bad  { background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.16); color: #FCA5A5; }
+#s4 .brow.good { background: rgba(16,185,129,.07); border: 1px solid rgba(16,185,129,.18); color: #065F46; }
+#s4 .brow-note { padding: 3px 12px; font-size: 11px; color: #047857; margin-bottom: 5px; }
+#s4 .result-bad { margin-top: 10px; padding: 9px 12px; background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.16); border-radius: 7px; font-size: 11px; color: #FCA5A5; line-height: 1.5; }
+#s4 .ai-box { margin-top: 7px; background: #EDFCE8; border: 1px solid #7DCCBB; border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #0D5A4A; line-height: 1.6; }
+#s4 .banner {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 48px;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff; letter-spacing: .03em;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 5 — CEDAR COMPARISON
+══════════════════════════════════════════════════════════ */
+#s5 { background: var(--light); color: var(--dark); padding: 36px 56px 40px; }
+#s5 .slide-title { color: var(--dark); }
+#s5 .slide-sub   { color: #475569; margin-bottom: 16px; }
+#s5 table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,.09);
+}
+#s5 th { padding: 12px 18px; text-align: center; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+#s5 th:first-child { text-align: left; background: #F8FAFC; color: #334155; }
+#s5 th.cedar { background: #F1F5F9; color: #64748B; }
+#s5 th.win   { background: var(--green); color: #fff; }
+#s5 td { padding: 11px 18px; border-bottom: 1px solid #F1F5F9; }
+#s5 tr:last-child td { border-bottom: none; }
+#s5 tr:nth-child(even) td { background: rgba(92,184,92,.025); }
+#s5 td:first-child { font-weight: 600; color: #1E293B; font-size: 13px; }
+#s5 td.y  { text-align: center; color: var(--green); font-size: 17px; font-weight: 700; }
+#s5 td.n  { text-align: center; color: #EF4444; font-size: 17px; }
+#s5 td.p  { text-align: center; color: #F59E0B; font-weight: 700; font-size: 12px; }
+#s5 td.tg { text-align: center; color: #64748B; font-size: 12px; }
+#s5 td.tw { text-align: center; color: var(--green); font-weight: 700; font-size: 12px; }
+#s5 .note { margin-top: 12px; font-size: 11px; color: #94A3B8; font-style: italic; text-align: center; }
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 6 — BUSINESS IMPACT (big KPIs)
+══════════════════════════════════════════════════════════ */
+#s6 { background: var(--dark); padding: 40px 56px 44px; }
+#s6 .kpi-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0; width: 100%; margin-top: 8px; margin-bottom: 28px;
+}
+#s6 .kpi {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 16px;
+}
+#s6 .kpi:not(:last-child) { border-right: 1px solid rgba(255,255,255,.07); }
+#s6 .kpi-num   { font-size: 46px; font-weight: 900; letter-spacing: -.03em; color: var(--green); line-height: 1; }
+#s6 .kpi-name  { font-size: 13px; font-weight: 700; color: #fff; margin-top: 10px; text-align: center; }
+#s6 .kpi-desc  { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 5px; text-align: center; line-height: 1.5; max-width: 160px; }
+#s6 .bottom-note {
+  width: 100%;
+  background: rgba(16,185,129,.09); border: 1px solid rgba(16,185,129,.22);
+  border-radius: 9px; padding: 12px 22px;
+  font-size: 13px; color: #6EE7B7; text-align: center; font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SLIDE 7 — CLOSE
+══════════════════════════════════════════════════════════ */
+#s7 { background: var(--green); padding: 48px 64px; }
+#s7::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 65% 35%, rgba(255,255,255,.1) 0%, transparent 65%);
+  pointer-events:none;
+}
+#s7 .close-quote {
+  font-size: 16px; font-weight: 500; line-height: 1.7;
+  text-align: center; max-width: 660px; color: rgba(255,255,255,.88);
+  padding: 24px 36px; background: rgba(255,255,255,.1);
+  border-radius: 16px; border: 1px solid rgba(255,255,255,.2);
+  margin-bottom: 32px; position: relative;
+}
+#s7 .close-icons { display: flex; gap: 52px; margin-bottom: 30px; position: relative; }
+#s7 .ci { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+#s7 .ci-emoji { font-size: 30px; }
+#s7 .ci-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); text-align: center; max-width: 110px; }
+#s7 .close-cta { font-size: 42px; font-weight: 900; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 16px rgba(0,0,0,.2); margin-bottom: 10px; position: relative; }
+#s7 .close-contact { font-size: 13px; color: rgba(255,255,255,.4); letter-spacing: .04em; position: relative; }
+</style>
+</head>
+<body>
+
+<!-- Chrome -->
+<div id="logo-bug"><i class="fa-solid fa-user-doctor" style="color:var(--green);margin-right:5px;"></i>PayMyDerm 2026</div>
+<div id="counter">1 / 7</div>
+<button id="nav-prev" onclick="changeSlide(-1)">← Prev</button>
+<button id="nav-next" onclick="changeSlide(1)">Next →</button>
+
+<div id="app-switcher">
+  <button id="switcher-btn" onclick="this.closest('#app-switcher').classList.toggle('open')">
+    <i class="fa-solid fa-grip"></i> Switch
+  </button>
+  <div id="switcher-menu">
+    <a href="index.html"><i class="fa-solid fa-house"></i> Hub</a>
+    <div class="sw-divider"></div>
+    <a href="patient-app.html"><i class="fa-solid fa-mobile-screen"></i> Patient App</a>
+    <a href="direct-pay.html"><i class="fa-solid fa-link"></i> Direct Pay</a>
+    <a href="deck.html"><i class="fa-solid fa-chart-bar"></i> Stakeholder Deck</a>
+  </div>
+</div>
+
+<!-- ══════════════════════ CANVAS ════════════════════════ -->
+<div id="slides">
+
+<!-- 1 · COVER -->
+<div class="slide active" id="s1">
+  <div class="c-icon"><i class="fa-solid fa-user-doctor"></i></div>
+  <div class="c-title">PayMyDerm 2026</div>
+  <div class="c-sub">The Patient Financial Experience Built for Dermatology</div>
+  <div class="c-foot">Integrated Dermatology &nbsp;·&nbsp; April 2026</div>
+</div>
+
+<!-- 2 · THE PROBLEM -->
+<div class="slide" id="s2">
+  <div class="eyebrow">The Problem</div>
+  <div class="slide-title">Dermatology Billing is Broken</div>
+  <div class="stat-row">
+    <div class="stat-block">
+      <div class="stat-num">47%</div>
+      <div class="stat-label">Bills Go Unpaid</div>
+      <div class="stat-desc">Practices lose $50K+ per year in preventable patient-responsibility write-offs</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num">1 in 3</div>
+      <div class="stat-label">Billing Surprises</div>
+      <div class="stat-desc">Insured patients receive a bill they couldn't predict, leading to disputes and delays</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num">14–20%</div>
+      <div class="stat-label">Denial Rate</div>
+      <div class="stat-desc">Derm-specific denials — 3× the industry average — driven by cosmetic vs. medical confusion</div>
+    </div>
+  </div>
+  <div class="bottom-bar">⚠️ &nbsp; No platform exists that handles both cosmetic <em>and</em> medical billing for dermatology practices.</div>
+</div>
+
+<!-- 3 · WHAT WE BUILT -->
+<div class="slide" id="s3">
+  <div class="eyebrow">The Solution</div>
+  <div class="slide-title">Four Things No One Else Does</div>
+  <div class="diff-grid">
+    <div class="diff-card highlight">
+      <div class="diff-icon">🧾</div>
+      <div class="diff-body">
+        <div class="diff-title">Unified Cosmetic + Medical Bill</div>
+        <div class="diff-text">One statement. Insurance charges and cosmetic self-pay explained side by side — first time it's been done.</div>
+        <span class="diff-badge">Unique</span>
+      </div>
+    </div>
+    <div class="diff-card highlight">
+      <div class="diff-icon">🤖</div>
+      <div class="diff-body">
+        <div class="diff-title">Derm-Specific AI Assistant</div>
+        <div class="diff-text">Answers "why wasn't this covered?" instantly. Trained on derm CPT codes, ICD-10, and cosmetic/medical rules.</div>
+        <span class="diff-badge">Unique</span>
+      </div>
+    </div>
+    <div class="diff-card highlight">
+      <div class="diff-icon">💳</div>
+      <div class="diff-body">
+        <div class="diff-title">Intelligent HSA/FSA Routing</div>
+        <div class="diff-text">Flags eligibility per line item. Prompts LMN for gray-zone services. Routes the right card at checkout automatically.</div>
+        <span class="diff-badge">Unique</span>
+      </div>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">📱</div>
+      <div class="diff-body">
+        <div class="diff-title">Text-to-Pay — No Login Required</div>
+        <div class="diff-text">Patient receives an SMS link, sees their bill with AI summary, and pays in seconds. Pre-visit estimates included.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 · UNIFIED BILL (before / after) -->
+<div class="slide" id="s4">
+  <div class="half half-l">
+    <div class="h-label">Before PayMyDerm</div>
+    <div class="h-title">Billing Chaos</div>
+    <div class="brow bad">📄 Bill #1 - Lab charges (separate company)</div>
+    <div class="brow bad">📄 Bill #2 - Provider fee (practice)</div>
+    <div class="brow bad">🌐 EOB - Insurance portal (different login)</div>
+    <div class="brow bad">💳 HSA - Third-party benefits website</div>
+    <div class="brow bad">❓ Cosmetic vs. Medical - Patient has no idea</div>
+    <div class="result-bad">Result: Patient calls 3x, disputes the bill, pays late or not at all.</div>
+  </div>
+  <div class="half half-r">
+    <div class="h-label">With PayMyDerm</div>
+    <div class="h-title">One Clean Bill</div>
+    <div class="brow good">✅ <strong>Medical</strong> - Insurance Covered + EOB inline</div>
+    <div class="brow-note">Biopsy · Office Visit · Patch Test</div>
+    <div class="brow good">✨ <strong>Cosmetic</strong> - Self-Pay, HSA eligibility shown</div>
+    <div class="brow-note">Botox · Filler · Chemical Peel</div>
+    <div class="ai-box">🤖 <strong>AI:</strong> "Your biopsy was covered by insurance. Your Botox is cosmetic - not HSA-eligible. Your filler may qualify - flagged for review."</div>
+  </div>
+  <div class="banner">✦ &nbsp; The cosmetic/medical billing split - solved for the first time. &nbsp; ✦</div>
+</div>
+
+<!-- 5 · CEDAR COMPARISON -->
+<div class="slide" id="s5">
+  <div class="eyebrow" style="color:#475569;">Competitive Positioning</div>
+  <div class="slide-title" style="color:var(--dark);">Built for Dermatology, Not Hospitals</div>
+  <div class="slide-sub">Cedar is excellent - for health systems. PayMyDerm is purpose-built for derm.</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th class="cedar">Cedar Pay</th>
+        <th class="win">PayMyDerm 2026</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Cosmetic + Medical in one bill</td><td class="n">❌</td><td class="y">✅</td></tr>
+      <tr><td>Derm-specific AI billing assistant</td><td class="n">❌</td><td class="y">✅</td></tr>
+      <tr><td>HSA/FSA intelligent eligibility per line</td><td class="n">❌</td><td class="y">✅</td></tr>
+      <tr><td>Text-to-pay (no login required)</td><td class="y">✅</td><td class="y">✅</td></tr>
+      <tr><td>Pre-visit cost estimates</td><td class="p">Partial</td><td class="y">✅</td></tr>
+      <tr><td>Target customer</td><td class="tg">Large health systems</td><td class="tw">Dermatology practices</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Cedar Pay: $3.2B valuation, 30% collection lift — we match their core and win where they don't play.</div>
+</div>
+
+<!-- 6 · BUSINESS IMPACT -->
+<div class="slide" id="s6">
+  <div class="eyebrow">Business Impact</div>
+  <div class="slide-title">What This Means for Your Practice</div>
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-num">+20%</div>
+      <div class="kpi-name">Collection Rate Lift</div>
+      <div class="kpi-desc">vs. your current baseline</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num">28 Days</div>
+      <div class="kpi-name">To Collect</div>
+      <div class="kpi-desc">down from 45-day industry avg</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num">80%+</div>
+      <div class="kpi-name">Digital Payments</div>
+      <div class="kpi-desc">vs. paper-dominant baseline</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num">&gt;90%</div>
+      <div class="kpi-name">Patient Satisfaction</div>
+      <div class="kpi-desc">on the billing experience</div>
+    </div>
+  </div>
+  <div class="bottom-note">Every 1% collection rate improvement = <strong>$13,000–$50,000/year</strong> for a typical dermatology practice</div>
+</div>
+
+<!-- 7 · CLOSE -->
+<div class="slide" id="s7">
+  <div class="close-quote">
+    PayMyDerm 2026 makes billing invisible — patients understand their charges, practices collect what they earn, and dermatology care becomes more accessible to everyone.
+  </div>
+  <div class="close-icons">
+    <div class="ci"><span class="ci-emoji">🏥</span><span class="ci-label">Better Patient Outcomes</span></div>
+    <div class="ci"><span class="ci-emoji">💰</span><span class="ci-label">Stronger Practice Revenue</span></div>
+    <div class="ci"><span class="ci-emoji">🤖</span><span class="ci-label">AI That Understands Derm</span></div>
+  </div>
+  <div class="close-cta">Let's build it.</div>
+  <div class="close-contact">Integrated Dermatology &nbsp;·&nbsp; PayMyDerm 2026</div>
+</div>
+
+</div><!-- #slides -->
+
+<script>
+  const TOTAL = 7;
+  let current = 0, animating = false;
+
+  const slidesEl = document.getElementById('slides');
+  const slides   = Array.from(slidesEl.querySelectorAll('.slide'));
+  const counter  = document.getElementById('counter');
+  const prevBtn  = document.getElementById('nav-prev');
+  const nextBtn  = document.getElementById('nav-next');
+
+  function rescale() {
+    const s = Math.min(window.innerWidth / 960, window.innerHeight / 540) * 0.94;
+    slidesEl.style.transform = `scale(${s})`;
+  }
+  window.addEventListener('resize', rescale);
+  rescale();
+
+  function updateUI() {
+    counter.textContent = (current + 1) + ' / ' + TOTAL;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === TOTAL - 1;
+  }
+
+  function goTo(i) {
+    if (animating || i === current || i < 0 || i >= TOTAL) return;
+    animating = true;
+    const out = slides[current], inn = slides[i];
+    out.classList.add('exit-left'); out.classList.remove('active');
+    inn.style.transform = 'translateX(24px)'; inn.style.opacity = '0'; inn.style.pointerEvents = 'none';
+    inn.classList.remove('exit-left');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      inn.classList.add('active'); inn.style.transform = ''; inn.style.opacity = ''; inn.style.pointerEvents = '';
+    }));
+    current = i; updateUI();
+    setTimeout(() => { out.classList.remove('exit-left'); animating = false; }, 460);
+  }
+
+  function changeSlide(d) { goTo(current + d); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+  document.addEventListener('click', e => {
+    const sw = document.getElementById('app-switcher');
+    if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+  });
+
+  updateUI();
+</script>
+</body>
+</html>

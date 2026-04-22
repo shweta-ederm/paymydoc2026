@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PayMyDerm - Pay Your Bill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   DIRECT PAY - Zero-friction payment link flow
+
+   Patient receives SMS/email: "You have a new bill from Dr. Kim.
+   Tap to view and pay → paymyderm.com/pay/abc123"
+
+   The link token identifies the patient, practice, and bill.
+   No login. No MRN. No password. Just: see → understand → pay → done.
+   ═══════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:    #111827;
+  --ink-2:  #374151;
+  --ink-3:  #6B7280;
+  --ink-4:  #9CA3AF;
+  --ink-5:  #D1D5DB;
+  --ink-6:  #E5E7EB;
+
+  --surface: #FFFFFF;
+  --canvas:  #F7F7F5;
+
+  --green:       #5CB85C;
+  --green-hover: #4FA64F;
+  --green-dark:  #3D8B3D;
+  --green-light: #E8F5E9;
+  --green-50:    #F0FDF4;
+
+  --teal:       #0D9488;
+  --teal-dark:  #0F766E;
+  --teal-light: #CCFBF1;
+
+  --amber:       #D97706;
+  --amber-light: #FEF3C7;
+  --red:         #DC2626;
+  --red-light:   #FEE2E2;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 24px;
+  --r-full: 999px;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-green: 0 4px 16px rgba(92,184,92,0.25);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: #0E0E18;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ── Device Frame ── */
+.device {
+  width: 393px;
+  height: 852px;
+  background: var(--canvas);
+  border-radius: 52px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.08),
+    0 0 0 4px #1a1a2a,
+    0 40px 100px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.device::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 36px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 300;
+}
+
+@media (max-width: 430px) {
+  body { background: var(--canvas); display: block; }
+  .device { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  .device::before { display: none; }
+}
+
+/* ── Status Bar ── */
+.statusbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 32px 8px;
+  z-index: 200;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  pointer-events: none;
+}
+.statusbar-icons { display: flex; align-items: center; gap: 5px; }
+
+/* ── Screens ── */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  background: var(--canvas);
+  overflow: hidden;
+}
+.screen.active {
+  display: flex;
+  animation: screenIn 0.4s var(--ease-out) both;
+}
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.status-spacer { height: 54px; flex-shrink: 0; }
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+/* ── Buttons ── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 56px;
+  border-radius: var(--r-lg);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+.btn:active { transform: scale(0.975); }
+.btn-primary { background: var(--green); color: #fff; box-shadow: var(--shadow-green); }
+.btn-ghost { background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink-6); }
+.btn-apple { background: #000; color: #fff; font-size: 17px; }
+.btn-teal { background: var(--teal); color: #fff; }
+
+/* ── Chips ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 650;
+}
+.chip-green  { background: var(--green-light); color: var(--green-dark); }
+.chip-teal   { background: var(--teal-light);  color: var(--teal-dark); }
+.chip-neutral{ background: #F3F4F6; color: var(--ink-3); }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes checkmark {
+  0% { stroke-dashoffset: 48; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.stagger > * { animation: fadeUp 0.5s var(--ease-out) both; }
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 1: LOADING - Verifying the payment link
+   ═══════════════════════════════════════════════════════════════════ */
+
+#loading {
+  background: var(--surface);
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-pill {
+  width: 72px; height: 72px;
+  background: var(--green-light);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  margin-bottom: 24px;
+}
+
+.loading-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--ink-6);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+
+.loading-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.loading-sub {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.loading-trust {
+  position: absolute;
+  bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 2: BILL - The patient sees their bill immediately
+   ═══════════════════════════════════════════════════════════════════ */
+
+.bill-trust-bar {
+  padding: 10px 20px;
+  background: var(--green-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.bill-trust-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+.bill-hero {
+  padding: 20px 20px 24px;
+  background: var(--surface);
+  text-align: center;
+  border-bottom: 1px solid var(--ink-6);
+}
+
+.bill-practice-logo {
+  width: 56px; height: 56px;
+  background: var(--green-light);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 12px;
+}
+
+.bill-practice-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.bill-patient-name {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-bottom: 16px;
+}
+
+.bill-total-amount {
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.bill-total-label {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+
+.bill-visit-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: var(--canvas);
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* AI Summary */
+.ai-explain {
+  margin: 16px 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #FEFCE8, #FEF9C3);
+  border: 1px solid #FDE68A;
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.ai-explain-icon {
+  width: 28px; height: 28px;
+  background: #FDE68A;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.ai-explain-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #92400E;
+  line-height: 1.5;
+}
+.ai-explain-text strong { color: #78350F; font-weight: 700; }
+
+/* Charge Groups */
+.charge-section { padding: 0 20px; }
+
+.charge-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 8px;
+}
+.charge-group-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.charge-group-dot.medical  { background: var(--green); }
+.charge-group-dot.cosmetic { background: var(--teal); }
+
+.charge-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.charge-group-title.medical  { color: var(--green-dark); }
+.charge-group-title.cosmetic { color: var(--teal-dark); }
+
+.charge-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.charge-row {
+  padding: 14px 16px;
+  border-bottom: 1px solid #F5F5F5;
+}
+.charge-row:last-child { border-bottom: none; }
+
+.charge-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+.charge-name { font-size: 15px; font-weight: 600; color: var(--ink); flex: 1; padding-right: 12px; }
+.charge-amount { font-size: 17px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+
+.charge-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.charge-detail { font-size: 12px; color: var(--ink-3); }
+.charge-detail strong { color: var(--ink-2); font-weight: 600; }
+
+.charge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+}
+.charge-tag.hsa { background: var(--green-light); color: var(--green-dark); }
+.charge-tag.no-hsa { background: #F3F4F6; color: var(--ink-3); }
+
+/* HSA hint */
+.hsa-hint {
+  margin: 12px 20px 0;
+  padding: 14px 16px;
+  background: var(--green-50);
+  border: 1px solid var(--green-light);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hsa-hint-icon { font-size: 20px; }
+.hsa-hint-text { font-size: 13px; color: var(--green-dark); font-weight: 600; line-height: 1.4; }
+
+/* Bill Footer */
+.bill-footer {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bill-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 4px;
+}
+
+.bill-footer-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-family: var(--font);
+}
+.bill-footer-link:active { opacity: 0.6; }
+
+/* Discount banner in bill footer */
+.bill-discount {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #065F46, #047857);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bill-discount-left {}
+.bill-discount-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #6EE7B7;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.bill-discount-main { font-size: 16px; font-weight: 800; color: #fff; }
+.bill-discount-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+.bill-discount-amount {
+  font-size: 22px;
+  font-weight: 800;
+  color: #6EE7B7;
+  letter-spacing: -0.5px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 3: PAY - Quick checkout
+   ═══════════════════════════════════════════════════════════════════ */
+
+.pay-header {
+  padding: 12px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.pay-back {
+  width: 40px; height: 40px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--ink-6);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--ink);
+  transition: all 0.15s;
+}
+.pay-back:active { background: var(--ink-6); transform: scale(0.92); }
+.pay-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+
+.pay-amount-section {
+  text-align: center;
+  padding: 16px 20px 24px;
+}
+.pay-label { font-size: 14px; color: var(--ink-3); margin-bottom: 4px; }
+.pay-number { font-size: 48px; font-weight: 800; color: var(--ink); letter-spacing: -2px; }
+.pay-discount-note { font-size: 13px; color: var(--green-dark); font-weight: 600; margin-top: 4px; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 16px 20px 10px;
+}
+
+/* Payment Methods */
+.method-card {
+  margin: 0 20px 8px;
+  background: var(--surface);
+  border: 2px solid var(--ink-6);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.method-card:active { transform: scale(0.98); }
+.method-card.selected { border-color: var(--green); }
+
+.method-icon {
+  width: 44px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.method-icon.apple { background: #000; font-size: 16px; }
+.method-icon.google { background: var(--surface); border: 1px solid var(--ink-6); font-size: 16px; }
+.method-icon.card-new { background: var(--ink-6); color: var(--ink-3); font-size: 16px; }
+.method-icon.hsa { background: var(--green); font-size: 10px; }
+
+.method-info { flex: 1; }
+.method-name { font-size: 15px; font-weight: 650; color: var(--ink); }
+.method-detail { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+
+.method-radio {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-5);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.method-card.selected .method-radio { border-color: var(--green); background: var(--green); }
+.method-radio-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; display: none; }
+.method-card.selected .method-radio-dot { display: block; }
+
+/* Plan option */
+.plan-inline {
+  margin: 8px 20px 0;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1.5px dashed var(--ink-5);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.plan-inline:active { transform: scale(0.98); border-color: var(--green); }
+.plan-inline-left {}
+.plan-inline-title { font-size: 14px; font-weight: 650; color: var(--ink); }
+.plan-inline-sub { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.plan-inline-arrow { font-size: 18px; color: var(--ink-4); }
+
+.pay-footer {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  flex-shrink: 0;
+}
+.pay-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink-4);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 4: DONE - Payment confirmed
+   ═══════════════════════════════════════════════════════════════════ */
+
+#done {
+  background: var(--surface);
+  align-items: center;
+  justify-content: center;
+}
+
+.done-check {
+  width: 80px; height: 80px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  animation: scaleIn 0.5s var(--ease-spring) both;
+  box-shadow: 0 8px 32px rgba(92,184,92,0.3);
+}
+.done-check svg {
+  width: 36px; height: 36px;
+  stroke: #fff; stroke-width: 3; fill: none;
+  stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 48;
+  animation: checkmark 0.6s ease 0.4s both;
+}
+
+.done-title {
+  font-size: 26px; font-weight: 800; color: var(--ink);
+  letter-spacing: -0.5px; margin-bottom: 8px;
+  animation: fadeUp 0.4s var(--ease-out) 0.3s both;
+}
+.done-amount {
+  font-size: 36px; font-weight: 800; color: var(--green);
+  letter-spacing: -1.5px; margin-bottom: 8px;
+  animation: fadeUp 0.4s var(--ease-out) 0.4s both;
+}
+.done-sub {
+  font-size: 14px; color: var(--ink-3); margin-bottom: 40px;
+  text-align: center; padding: 0 40px; line-height: 1.5;
+  animation: fadeUp 0.4s var(--ease-out) 0.5s both;
+}
+
+.done-receipt {
+  width: calc(100% - 40px);
+  background: var(--canvas);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  margin-bottom: 32px;
+  animation: fadeUp 0.4s var(--ease-out) 0.6s both;
+}
+.done-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+}
+.done-receipt-label { color: var(--ink-3); }
+.done-receipt-value { font-weight: 650; color: var(--ink); }
+
+.done-actions {
+  width: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeUp 0.4s var(--ease-out) 0.7s both;
+}
+
+.done-footer {
+  position: absolute;
+  bottom: 40px;
+  font-size: 12px;
+  color: var(--ink-4);
+  text-align: center;
+  line-height: 1.5;
+  animation: fadeUp 0.4s var(--ease-out) 0.8s both;
+}
+.done-footer a { color: var(--green); text-decoration: none; font-weight: 600; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 5: PLAN - Optional payment plan from direct link
+   ═══════════════════════════════════════════════════════════════════ */
+
+.plan-hero {
+  text-align: center;
+  padding: 20px 20px 8px;
+}
+.plan-hero-amount { font-size: 32px; font-weight: 800; color: var(--ink); letter-spacing: -1px; }
+.plan-hero-sub { font-size: 14px; color: var(--ink-3); margin-top: 4px; }
+
+.plan-option {
+  margin: 0 20px 10px;
+  background: var(--surface);
+  border: 2px solid var(--ink-6);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.plan-option:active { transform: scale(0.98); }
+.plan-option.selected { border-color: var(--green); background: var(--green-50); }
+
+.plan-popular {
+  position: absolute;
+  top: -10px; right: 16px;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px; font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.plan-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.plan-months { font-size: 17px; font-weight: 700; color: var(--ink); }
+.plan-monthly { font-size: 24px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+.plan-monthly span { font-size: 14px; font-weight: 500; color: var(--ink-3); }
+.plan-option.selected .plan-monthly { color: var(--green-dark); }
+.plan-detail { font-size: 13px; color: var(--ink-3); }
+.plan-detail strong { color: var(--ink-2); }
+
+.plan-footer {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  flex-shrink: 0;
+}
+
+/* App Switcher */
+#app-switcher {
+  position: fixed; top: 16px; right: 16px; z-index: 9999;
+}
+#switcher-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.8);
+  padding: 7px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  backdrop-filter: blur(10px); transition: all .2s;
+  font-family: inherit; letter-spacing: .03em;
+}
+#switcher-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+#switcher-menu {
+  display: none; flex-direction: column;
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: rgba(10,18,36,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; padding: 6px; min-width: 176px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#app-switcher.open #switcher-menu { display: flex; }
+#switcher-menu a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600;
+  text-decoration: none; transition: background .15s, color .15s;
+}
+#switcher-menu a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+#switcher-menu a i { width: 16px; color: #5CB85C; font-size: 12px; flex-shrink: 0; }
+#switcher-menu .sw-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 4px 6px; }
+
+</style>
+</head>
+<body>
+
+<!-- App Switcher -->
+<div id="app-switcher">
+  <button id="switcher-btn" onclick="this.closest('#app-switcher').classList.toggle('open')">
+    <i class="fa-solid fa-grip"></i> Switch
+  </button>
+  <div id="switcher-menu">
+    <a href="index.html"><i class="fa-solid fa-house"></i> Hub</a>
+    <div class="sw-divider"></div>
+    <a href="patient-app.html"><i class="fa-solid fa-mobile-screen"></i> Patient App</a>
+    <a href="direct-pay.html"><i class="fa-solid fa-link"></i> Direct Pay</a>
+    <a href="deck.html"><i class="fa-solid fa-chart-bar"></i> Stakeholder Deck</a>
+  </div>
+</div>
+
+<div class="device">
+
+  <!-- ── STATUS BAR ── -->
+  <div class="statusbar" id="statusbar">
+    <span id="clock">9:41</span>
+    <div class="statusbar-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+        <rect x="0" y="4" width="3" height="8" rx="0.5" opacity="0.4"/>
+        <rect x="4.5" y="2.5" width="3" height="9.5" rx="0.5" opacity="0.6"/>
+        <rect x="9" y="0.5" width="3" height="11.5" rx="0.5" opacity="0.8"/>
+        <rect x="13.5" y="0" width="2.5" height="12" rx="0.5"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+        <path d="M8 2.4C9.9 2.4 11.6 3.1 12.9 4.3L14.1 3.1C12.5 1.6 10.4 .7 8 .7 5.6.7 3.5 1.6 1.9 3.1L3.1 4.3C4.4 3.1 6.1 2.4 8 2.4Z" opacity="0.6"/>
+        <path d="M8 5C9.2 5 10.3 5.5 11.1 6.3L12.3 5.1C11.2 4.1 9.7 3.5 8 3.5 6.3 3.5 4.8 4.1 3.7 5.1L4.9 6.3C5.7 5.5 6.8 5 8 5Z" opacity="0.8"/>
+        <circle cx="8" cy="9.5" r="1.8"/>
+      </svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+        <rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/>
+        <rect x="22" y="4" width="2" height="4" rx="1" opacity="0.35"/>
+        <rect x="1.5" y="2.5" width="15" height="7" rx="1" opacity="0.9"/>
+      </svg>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 1: LOADING - Link verification
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen active" id="loading">
+    <div class="loading-pill"><i class="fa-solid fa-user-doctor" style="color:var(--green-dark);"></i></div>
+    <div class="loading-spinner"></div>
+    <div class="loading-title">Verifying your link...</div>
+    <div class="loading-sub">One moment please</div>
+    <div class="loading-trust">🔒 HIPAA Compliant · Secure Connection</div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 2: BILL - Immediate bill view
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="bill">
+    <div class="status-spacer"></div>
+
+    <div class="bill-trust-bar">
+      <span>🔒</span>
+      <span class="bill-trust-text">Verified bill from Dermatology Associates</span>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas)">
+      <div class="stagger">
+
+        <!-- Hero: Who, What, How Much -->
+        <div class="bill-hero">
+          <div class="bill-practice-logo">🏥</div>
+          <div class="bill-practice-name">Dermatology Associates</div>
+          <div class="bill-patient-name">Sarah Mitchell · Account ····4821</div>
+          <div class="bill-total-amount">$496.00</div>
+          <div class="bill-total-label">Balance due</div>
+          <div class="bill-visit-date">📅 Visit: April 3, 2026</div>
+        </div>
+
+        <!-- AI Explanation -->
+        <div class="ai-explain">
+          <div class="ai-explain-icon">✦</div>
+          <div class="ai-explain-text">
+            <strong>Here's what happened:</strong> Your mole was removed and tested (covered by insurance - you owe $156). You also had Botox (cosmetic, not covered - $340).
+          </div>
+        </div>
+
+        <!-- Discount Banner -->
+        <div style="padding:0 20px;">
+          <div class="bill-discount">
+            <div class="bill-discount-left">
+              <div class="bill-discount-badge">⚡ Pay Today Discount</div>
+              <div class="bill-discount-main">Save 15% if you pay now</div>
+              <div class="bill-discount-sub">Offer expires in 7 days</div>
+            </div>
+            <div class="bill-discount-amount">$421.60</div>
+          </div>
+        </div>
+
+        <!-- Charges: Medical -->
+        <div class="charge-section">
+          <div class="charge-group-header">
+            <div class="charge-group-dot medical"></div>
+            <div class="charge-group-title medical">Medical - Insurance Applied</div>
+          </div>
+          <div class="charge-card">
+            <div class="charge-row">
+              <div class="charge-top">
+                <div>
+                  <div class="charge-name">Mole Removal Biopsy</div>
+                  <div class="charge-meta" style="margin-top:6px;">
+                    <span class="charge-tag hsa">✓ HSA Eligible</span>
+                    <span class="charge-detail">CPT 11102</span>
+                  </div>
+                </div>
+                <div class="charge-amount">$96</div>
+              </div>
+              <div class="charge-meta" style="margin-top:6px;">
+                <span class="charge-detail">Billed <strong>$450</strong></span>
+                <span class="charge-detail">Insurance paid <strong>$354</strong></span>
+              </div>
+            </div>
+            <div class="charge-row">
+              <div class="charge-top">
+                <div>
+                  <div class="charge-name">Pathology Analysis</div>
+                  <div class="charge-meta" style="margin-top:6px;">
+                    <span class="charge-tag hsa">✓ HSA Eligible</span>
+                    <span class="charge-detail">CPT 88305</span>
+                  </div>
+                </div>
+                <div class="charge-amount">$60</div>
+              </div>
+              <div class="charge-meta" style="margin-top:6px;">
+                <span class="charge-detail">Billed <strong>$285</strong></span>
+                <span class="charge-detail">Insurance paid <strong>$225</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charges: Cosmetic -->
+        <div class="charge-section">
+          <div class="charge-group-header">
+            <div class="charge-group-dot cosmetic"></div>
+            <div class="charge-group-title cosmetic">Cosmetic - Self-Pay</div>
+          </div>
+          <div class="charge-card">
+            <div class="charge-row">
+              <div class="charge-top">
+                <div>
+                  <div class="charge-name">Botox - 40 Units</div>
+                  <div class="charge-meta" style="margin-top:6px;">
+                    <span class="charge-tag no-hsa">✕ Not HSA Eligible</span>
+                    <span class="charge-detail">$8.50/unit</span>
+                  </div>
+                </div>
+                <div class="charge-amount">$340</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HSA Hint -->
+        <div class="hsa-hint">
+          <div class="hsa-hint-icon">💳</div>
+          <div class="hsa-hint-text">$156 of this bill is HSA/FSA eligible. You can split payment across cards at checkout.</div>
+        </div>
+
+        <div style="height:20px"></div>
+      </div>
+    </div>
+
+    <!-- Bill Footer -->
+    <div class="bill-footer">
+      <button class="btn btn-primary" onclick="go('pay')">Pay $421.60 (Save 15%) →</button>
+      <button class="btn btn-ghost" onclick="go('plans')">Set Up Payment Plan</button>
+      <div class="bill-footer-links">
+        <button class="bill-footer-link">Need help?</button>
+        <button class="bill-footer-link">Dispute a charge</button>
+        <button class="bill-footer-link">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 3: PAY - Quick checkout
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="pay">
+    <div class="status-spacer"></div>
+    <div class="pay-header">
+      <button class="pay-back" onclick="go('bill')">←</button>
+      <div class="pay-title">Checkout</div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas)">
+
+      <div class="pay-amount-section">
+        <div class="pay-label">You're paying</div>
+        <div class="pay-number">$421.60</div>
+        <div class="pay-discount-note">Includes 15% pay-today discount</div>
+      </div>
+
+      <div class="section-label">Quick Pay</div>
+
+      <div class="method-card" onclick="selectMethod(this)" style="margin-bottom:8px;">
+        <div class="method-icon apple"></div>
+        <div class="method-info">
+          <div class="method-name">Apple Pay</div>
+          <div class="method-detail">Fastest checkout</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <div class="method-card" onclick="selectMethod(this)">
+        <div class="method-icon google">G</div>
+        <div class="method-info">
+          <div class="method-name">Google Pay</div>
+          <div class="method-detail">Pay with your Google wallet</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <div class="section-label">Or enter a card</div>
+
+      <div class="method-card selected" onclick="selectMethod(this)">
+        <div class="method-icon card-new">+</div>
+        <div class="method-info">
+          <div class="method-name">Debit or Credit Card</div>
+          <div class="method-detail">Visa, Mastercard, Amex, Discover</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <div class="method-card" onclick="selectMethod(this)">
+        <div class="method-icon hsa">HSA</div>
+        <div class="method-info">
+          <div class="method-name">HSA / FSA Card</div>
+          <div class="method-detail">$156 of this bill is eligible</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <!-- Inline plan option -->
+      <div class="plan-inline" onclick="go('plans')">
+        <div class="plan-inline-left">
+          <div class="plan-inline-title">Prefer to pay over time?</div>
+          <div class="plan-inline-sub">Plans from $41.33/mo · 0% interest</div>
+        </div>
+        <div class="plan-inline-arrow">›</div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+
+    <div class="pay-footer">
+      <button class="btn btn-primary" onclick="go('done')">Pay $421.60</button>
+      <div class="pay-security">🔒 Secured by Stripe · PCI Compliant · HIPAA</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 4: DONE - Payment confirmed
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="done">
+    <div class="status-spacer"></div>
+
+    <div class="done-check">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
+    </div>
+    <div class="done-title">Payment Successful</div>
+    <div class="done-amount">$421.60</div>
+    <div class="done-sub">A receipt has been sent to your phone and email. Your balance with Dermatology Associates is now $0.00.</div>
+
+    <div class="done-receipt">
+      <div class="done-receipt-row">
+        <span class="done-receipt-label">Date</span>
+        <span class="done-receipt-value">April 16, 2026</span>
+      </div>
+      <div class="done-receipt-row">
+        <span class="done-receipt-label">Practice</span>
+        <span class="done-receipt-value">Dermatology Associates</span>
+      </div>
+      <div class="done-receipt-row">
+        <span class="done-receipt-label">Method</span>
+        <span class="done-receipt-value">Card ····4242</span>
+      </div>
+      <div class="done-receipt-row">
+        <span class="done-receipt-label">Discount</span>
+        <span class="done-receipt-value" style="color:#3D8B3D;">−$74.40</span>
+      </div>
+      <div class="done-receipt-row">
+        <span class="done-receipt-label">Reference</span>
+        <span class="done-receipt-value">#PMD-28491</span>
+      </div>
+    </div>
+
+    <div class="done-actions">
+      <button class="btn btn-ghost">Download Receipt</button>
+    </div>
+
+    <div class="done-footer">
+      Questions? Contact <a href="#">Dermatology Associates</a><br>
+      Powered by PayMyDerm · HIPAA Compliant
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 5: PLANS - Payment plan option
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="plans">
+    <div class="status-spacer"></div>
+    <div class="pay-header">
+      <button class="pay-back" onclick="go('bill')">←</button>
+      <div class="pay-title">Payment Plans</div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas)">
+
+      <div class="plan-hero">
+        <div class="plan-hero-amount">$496.00</div>
+        <div class="plan-hero-sub">Split into easy monthly payments · 0% interest</div>
+      </div>
+
+      <div class="plan-option" id="plan-3" onclick="selectPlan(3)">
+        <div class="plan-top">
+          <div class="plan-months">3 months</div>
+          <div class="plan-monthly">$165.33<span>/mo</span></div>
+        </div>
+        <div class="plan-detail">Total $496.00 · 0% interest · <strong>Fastest payoff</strong></div>
+      </div>
+
+      <div class="plan-option selected" id="plan-6" onclick="selectPlan(6)">
+        <div class="plan-popular">POPULAR</div>
+        <div class="plan-top">
+          <div class="plan-months">6 months</div>
+          <div class="plan-monthly">$82.67<span>/mo</span></div>
+        </div>
+        <div class="plan-detail">Total $496.00 · 0% interest · <strong>Best balance</strong></div>
+      </div>
+
+      <div class="plan-option" id="plan-12" onclick="selectPlan(12)">
+        <div class="plan-top">
+          <div class="plan-months">12 months</div>
+          <div class="plan-monthly">$41.33<span>/mo</span></div>
+        </div>
+        <div class="plan-detail">Total $496.00 · 0% interest · <strong>Lowest monthly</strong></div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+
+    <div class="plan-footer">
+      <button class="btn btn-primary" onclick="go('done')">Start Plan - $82.67/mo</button>
+      <div class="pay-security" style="margin-top:12px;">Auto-pay required · Cancel anytime</div>
+    </div>
+  </div>
+
+</div><!-- /device -->
+
+
+<script>
+
+const screens = document.querySelectorAll('.screen');
+
+function go(id) {
+  screens.forEach(s => {
+    s.classList.remove('active');
+    s.style.animation = 'none';
+  });
+  const target = document.getElementById(id);
+  if (target) {
+    void target.offsetWidth;
+    target.style.animation = '';
+    target.classList.add('active');
+    const sc = target.querySelector('.scroll');
+    if (sc) sc.scrollTop = 0;
+  }
+}
+
+// Auto-advance from loading to bill after 2 seconds
+setTimeout(() => go('bill'), 2000);
+
+// Payment method selection
+function selectMethod(el) {
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Plan selection
+function selectPlan(months) {
+  const plans = { 3: '$165.33', 6: '$82.67', 12: '$41.33' };
+  [3, 6, 12].forEach(m => {
+    const el = document.getElementById('plan-' + m);
+    if (el) el.classList.toggle('selected', m === months);
+  });
+  const footer = document.querySelector('.plan-footer .btn');
+  if (footer) footer.textContent = `Start Plan - ${plans[months]}/mo`;
+}
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  let h = now.getHours();
+  const m = now.getMinutes().toString().padStart(2, '0');
+  h = h % 12 || 12;
+  document.getElementById('clock').textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// Prevent rubber-band
+document.querySelector('.device').addEventListener('touchmove', function(e) {
+  if (!e.target.closest('.scroll')) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('click', (e) => {
+  const sw = document.getElementById('app-switcher');
+  if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+});
+
+</script>
+</body>
+</html>

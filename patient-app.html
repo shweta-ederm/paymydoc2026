@@ -1,0 +1,3075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PayMyDerm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM - "Verdant"
+
+   Philosophy: Calm confidence. Healthcare billing is stressful -
+   this app should feel like a relief. Think: the serenity of a spa
+   reception desk meets the precision of a Swiss bank statement.
+
+   Every pixel serves the user's journey from "I owe money" to
+   "I'm taken care of."
+   ═══════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Ink (text hierarchy) ── */
+  --ink:    #111827;
+  --ink-2:  #374151;
+  --ink-3:  #6B7280;
+  --ink-4:  #9CA3AF;
+  --ink-5:  #D1D5DB;
+  --ink-6:  #E5E7EB;
+
+  /* ── Surfaces ── */
+  --surface: #FFFFFF;
+  --canvas:  #F7F7F5;
+  --wash:    #FAFAF8;
+
+  /* ── Green (primary - progress, actions, success) ── */
+  --green:       #5CB85C;
+  --green-hover: #4FA64F;
+  --green-dark:  #3D8B3D;
+  --green-light: #E8F5E9;
+  --green-50:    #F0FDF4;
+
+  /* ── Teal (secondary - cosmetic services) ── */
+  --teal:       #0D9488;
+  --teal-dark:  #0F766E;
+  --teal-light: #CCFBF1;
+  --teal-50:    #F0FDFA;
+
+  /* ── Status colors ── */
+  --amber:       #D97706;
+  --amber-light: #FEF3C7;
+  --red:         #DC2626;
+  --red-light:   #FEE2E2;
+
+  /* ── Radius ── */
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-2xl:  24px;
+  --r-full: 999px;
+
+  /* ── Shadows (warm, not blue-gray) ── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 48px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-green: 0 4px 16px rgba(92,184,92,0.25);
+
+  /* ── Motion ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --nav-h: 68px;
+  --font: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #0E0E18;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   DEVICE FRAME
+   ═══════════════════════════════════════════════════════════════════ */
+
+.device {
+  width: 393px;
+  height: 852px;
+  background: var(--canvas);
+  border-radius: 52px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.08),
+    0 0 0 4px #1a1a2a,
+    0 40px 100px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+/* Dynamic Island */
+.device::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 50%;
+  transform: translateX(-50%);
+  width: 126px; height: 36px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 300;
+}
+
+@media (max-width: 430px) {
+  body { background: var(--canvas); display: block; }
+  .device { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  .device::before { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+.statusbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 32px 8px;
+  z-index: 200;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+.statusbar.light { color: #fff; }
+.statusbar.dark  { color: var(--ink); }
+
+.statusbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN SYSTEM
+   ═══════════════════════════════════════════════════════════════════ */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  background: var(--canvas);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+.screen.active {
+  display: flex;
+  animation: screenIn 0.4s var(--ease-out) both;
+}
+@keyframes screenIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.status-spacer { height: 54px; flex-shrink: 0; }
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════ */
+
+.t-hero   { font-size: 48px; font-weight: 800; letter-spacing: -2px; line-height: 1; color: var(--ink); }
+.t-display{ font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; color: var(--ink); }
+.t-title  { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.3; color: var(--ink); }
+.t-body   { font-size: 15px; font-weight: 400; line-height: 1.55; color: var(--ink-2); }
+.t-caption{ font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--ink-3); }
+.t-micro  { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-4); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   COMPONENTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Buttons ── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 56px;
+  border-radius: var(--r-lg);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn:active { transform: scale(0.975); }
+
+.btn-primary {
+  background: var(--green);
+  color: #fff;
+  box-shadow: var(--shadow-green);
+}
+.btn-primary:hover { background: var(--green-hover); }
+
+.btn-secondary {
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1.5px solid var(--ink-6);
+}
+
+.btn-dark {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-teal {
+  background: var(--teal);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(13,148,136,0.25);
+}
+
+.btn-apple {
+  background: #000;
+  color: #fff;
+  font-size: 17px;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* ── Chips ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+}
+.chip-green  { background: var(--green-light); color: var(--green-dark); }
+.chip-teal   { background: var(--teal-light);  color: var(--teal-dark); }
+.chip-amber  { background: var(--amber-light); color: var(--amber); }
+.chip-red    { background: var(--red-light);    color: var(--red); }
+.chip-neutral{ background: #F3F4F6;            color: var(--ink-3); }
+
+/* ── Input ── */
+.input {
+  width: 100%;
+  padding: 16px 18px;
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--ink-6);
+  border-radius: var(--r-md);
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.input:focus { border-color: var(--green); }
+.input::placeholder { color: var(--ink-4); }
+
+/* ── Bottom Navigation (classy monochrome) ── */
+.nav {
+  height: 72px;
+  background: var(--surface);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  position: relative;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+  padding: 12px 4px 10px;
+  position: relative;
+}
+.nav-item:active { transform: scale(0.93); opacity: 0.6; }
+
+.nav-icon {
+  font-size: 18px;
+  color: var(--ink-4);
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.nav-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  color: var(--ink-4);
+  transition: all 0.2s ease;
+}
+
+.nav-item.active .nav-icon { color: var(--ink); }
+.nav-item.active .nav-label { color: var(--ink); font-weight: 700; }
+
+/* Subtle top indicator for active item */
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 0 0 2px 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.nav-item.active::before { opacity: 1; }
+
+/* ── Screen Header ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px 16px;
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.topbar-back {
+  width: 40px; height: 40px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--ink-6);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.topbar-back:active { background: var(--ink-6); transform: scale(0.92); }
+
+.topbar-title {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+
+.topbar-action {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  background: var(--green-50);
+  border: none;
+  transition: all 0.15s;
+}
+.topbar-action:active { opacity: 0.7; }
+
+/* ── Toggle ── */
+.toggle {
+  width: 50px; height: 30px;
+  background: var(--ink-5);
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--green); }
+.toggle::after {
+  content: '';
+  width: 24px; height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px; left: 3px;
+  transition: left 0.25s var(--ease-spring);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle.on::after { left: 23px; }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--ink-6); margin: 0 20px; }
+
+/* ── Section Label ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 24px 24px 12px;
+}
+
+/* ── Inline AI Insight ── */
+.insight {
+  margin: 0 20px 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #FEFCE8 0%, #FEF9C3 100%);
+  border: 1px solid #FDE68A;
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.insight:active { transform: scale(0.98); }
+.insight-icon {
+  width: 28px; height: 28px;
+  background: #FDE68A;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.insight-text { font-size: 13.5px; font-weight: 500; color: #92400E; line-height: 1.45; }
+.insight-text strong { font-weight: 700; color: #78350F; }
+
+/* ── Stagger animation ── */
+.stagger > * {
+  animation: fadeUp 0.5s var(--ease-out) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger > *:nth-child(10){ animation-delay: 0.5s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes drawProgress {
+  from { width: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes checkmark {
+  0% { stroke-dashoffset: 48; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes confettiDrop {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 1: SPLASH
+   ═══════════════════════════════════════════════════════════════════ */
+
+#splash {
+  background: #0C0F1A;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-glow {
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(92,184,92,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 30%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.splash-pill {
+  width: 96px; height: 96px;
+  background: rgba(92,184,92,0.12);
+  border: 1px solid rgba(92,184,92,0.2);
+  border-radius: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px;
+  margin-bottom: 32px;
+  animation: float 4s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+.splash-name {
+  font-size: 34px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1.2px;
+  margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+
+.splash-tagline {
+  font-size: 16px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 400;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 240px;
+  margin-bottom: 56px;
+  position: relative; z-index: 1;
+}
+
+.splash-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 36px;
+  background: var(--green);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  box-shadow: 0 0 32px rgba(92,184,92,0.3), var(--shadow-green);
+  transition: all 0.2s var(--ease-spring);
+  position: relative; z-index: 1;
+  letter-spacing: -0.2px;
+}
+.splash-cta:active { transform: scale(0.95); }
+.splash-cta .arrow {
+  transition: transform 0.2s;
+}
+.splash-cta:hover .arrow { transform: translateX(3px); }
+
+.splash-trust {
+  position: absolute;
+  bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 2: AUTH
+   ═══════════════════════════════════════════════════════════════════ */
+
+.auth-wrap {
+  flex: 1;
+  padding: 24px 24px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+.auth-logo-pill { font-size: 24px; }
+.auth-logo-name { font-size: 18px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+
+.auth-question {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.auth-sub {
+  font-size: 15px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin-bottom: 36px;
+}
+
+.auth-input-wrap { margin-bottom: 16px; }
+.auth-input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+.auth-footer {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.auth-legal {
+  font-size: 12px;
+  color: var(--ink-4);
+  text-align: center;
+  line-height: 1.7;
+  margin-top: 16px;
+}
+.auth-legal a { color: var(--green); text-decoration: none; font-weight: 600; }
+
+.auth-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 16px;
+  background: var(--green-50);
+  border-radius: var(--r-md);
+}
+.auth-trust-text { font-size: 12px; color: var(--green-dark); font-weight: 600; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 3: OTP
+   ═══════════════════════════════════════════════════════════════════ */
+
+.otp-wrap {
+  flex: 1;
+  padding: 24px 24px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.otp-sent {
+  font-size: 15px;
+  color: var(--ink-3);
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+.otp-sent strong { color: var(--ink); }
+
+.otp-boxes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.otp-digit {
+  width: 52px; height: 64px;
+  background: var(--surface);
+  border: 2px solid var(--ink-6);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  transition: all 0.2s;
+}
+.otp-digit.filled { border-color: var(--green); background: var(--green-50); color: var(--green-dark); }
+.otp-digit.empty { color: var(--ink-5); }
+
+.otp-resend {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-3);
+  margin-top: 20px;
+}
+.otp-resend a { color: var(--green); font-weight: 700; text-decoration: none; cursor: pointer; }
+
+.otp-footer { margin-top: auto; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 4: HOME - The hero screen
+   ═══════════════════════════════════════════════════════════════════ */
+
+.home-header {
+  padding: 16px 20px 0;
+  flex-shrink: 0;
+}
+
+.home-greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-hello {
+  font-size: 15px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.home-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  margin-top: 2px;
+}
+
+.home-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 2px solid var(--green);
+}
+.home-avatar:active { transform: scale(0.92); }
+
+/* Balance Hero Card */
+.balance-hero {
+  margin: 20px 20px 0;
+  background: var(--ink);
+  border-radius: var(--r-2xl);
+  padding: 28px 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.balance-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(92,184,92,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.balance-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.balance-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 8px;
+}
+
+.balance-amount {
+  font-size: 44px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Progress to zero */
+.balance-progress {
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.balance-progress-track {
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.balance-progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: var(--r-full);
+  width: 35%;
+  animation: drawProgress 1s var(--ease-out) 0.3s both;
+  box-shadow: 0 0 12px rgba(92,184,92,0.4);
+}
+
+.balance-progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 500;
+}
+
+.balance-progress-label strong {
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* Split badges */
+.balance-split {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.balance-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  flex: 1;
+}
+
+.balance-chip-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.balance-chip-dot.medical  { background: var(--green); }
+.balance-chip-dot.cosmetic { background: var(--teal); }
+
+.balance-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.balance-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: var(--r-md);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: -0.2px;
+}
+.balance-btn:active { transform: scale(0.96); }
+.balance-btn-primary {
+  background: var(--green);
+  color: #fff;
+}
+.balance-btn-ghost {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+}
+
+/* Home scroll area */
+.home-scroll { background: var(--canvas); }
+
+/* Quick Actions Grid */
+.quick-grid {
+  display: flex;
+  gap: 10px;
+  padding: 20px 20px 8px;
+}
+
+.quick-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-xs);
+}
+.quick-item:active { transform: scale(0.94); background: var(--ink-6); }
+
+.quick-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.quick-icon.gi { background: var(--green-light); }
+.quick-icon.ti { background: var(--teal-light); }
+.quick-icon.ai { background: var(--amber-light); }
+.quick-icon.ni { background: #F3F4F6; }
+
+.quick-text {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ink-3);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Bill List Items */
+.bill-item {
+  margin: 0 20px 10px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-xs);
+}
+.bill-item:active { transform: scale(0.98); background: #FAFAFA; }
+
+.bill-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.bill-icon.medical  { background: var(--green-light); }
+.bill-icon.cosmetic { background: var(--teal-light); }
+
+.bill-info { flex: 1; min-width: 0; }
+.bill-title {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bill-meta { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+.bill-right { text-align: right; flex-shrink: 0; }
+.bill-amount { font-size: 17px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+.bill-status { font-size: 11px; font-weight: 650; margin-top: 2px; }
+.bill-status.due { color: var(--red); }
+.bill-status.paid { color: var(--green); }
+
+/* Upcoming Card */
+.upcoming {
+  margin: 0 20px 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1.5px dashed var(--ink-5);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.upcoming:active { transform: scale(0.98); border-color: var(--green); }
+
+.upcoming-date {
+  width: 48px; height: 48px;
+  background: var(--green-50);
+  border-radius: var(--r-md);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.upcoming-month { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; }
+.upcoming-day   { font-size: 20px; font-weight: 800; color: var(--green-dark); letter-spacing: -0.5px; line-height: 1; }
+
+.upcoming-info { flex: 1; }
+.upcoming-title { font-size: 15px; font-weight: 650; color: var(--ink); }
+.upcoming-sub   { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+.upcoming-est {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 5: BILL DETAIL - The differentiator
+   ═══════════════════════════════════════════════════════════════════ */
+
+.detail-header {
+  padding: 16px 20px 20px;
+  background: var(--surface);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--ink-6);
+}
+
+.detail-visit {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.detail-provider {
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.detail-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.detail-total {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -1.5px;
+}
+
+.detail-total-label {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.detail-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+/* Line Items */
+.line-group {
+  padding: 0 20px;
+}
+
+.line-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 0 10px;
+}
+
+.line-group-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.line-group-dot.medical  { background: var(--green); }
+.line-group-dot.cosmetic { background: var(--teal); }
+
+.line-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.line-group-title.medical  { color: var(--green-dark); }
+.line-group-title.cosmetic { color: var(--teal-dark); }
+
+.line-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.line-row {
+  padding: 14px 16px;
+  border-bottom: 1px solid #F5F5F5;
+}
+.line-row:last-child { border-bottom: none; }
+
+.line-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.line-name { font-size: 15px; font-weight: 600; color: var(--ink); flex: 1; padding-right: 12px; }
+.line-owe  { font-size: 17px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; text-align: right; }
+
+.line-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.line-detail { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+.line-detail strong { color: var(--ink-2); font-weight: 600; }
+
+.line-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+}
+.line-tag.hsa { background: var(--green-light); color: var(--green-dark); }
+.line-tag.no-hsa { background: #F3F4F6; color: var(--ink-3); }
+.line-tag.covered { background: var(--green-50); color: var(--green); }
+
+.detail-footer {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 6: PAYMENT
+   ═══════════════════════════════════════════════════════════════════ */
+
+.pay-amount-display {
+  text-align: center;
+  padding: 24px 20px 20px;
+}
+
+.pay-label { font-size: 14px; color: var(--ink-3); font-weight: 500; margin-bottom: 4px; }
+
+.pay-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -2px;
+}
+
+/* Discount offer */
+.discount-offer {
+  margin: 0 20px 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #065F46, #047857);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.discount-offer:active { transform: scale(0.98); }
+
+.discount-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.discount-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6EE7B7;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.discount-check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+.discount-check.on  { background: #6EE7B7; color: #065F46; }
+.discount-check.off { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); }
+
+.discount-main { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.discount-sub  { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+/* Payment Methods */
+.method-card {
+  margin: 0 20px 8px;
+  background: var(--surface);
+  border: 2px solid var(--ink-6);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.method-card:active { transform: scale(0.98); }
+.method-card.selected { border-color: var(--green); }
+
+.method-icon {
+  width: 44px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.method-icon.visa { background: linear-gradient(135deg, #1a1aff, #4b00b3); }
+.method-icon.apple { background: #000; font-size: 16px; }
+.method-icon.hsa   { background: var(--green); }
+
+.method-info { flex: 1; }
+.method-name { font-size: 15px; font-weight: 650; color: var(--ink); }
+.method-detail { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+
+.method-radio {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-5);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.method-card.selected .method-radio { border-color: var(--green); background: var(--green); }
+.method-radio-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  display: none;
+}
+.method-card.selected .method-radio-dot { display: block; }
+
+.pay-footer {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  flex-shrink: 0;
+}
+
+.pay-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 7: PAYMENT PLANS
+   ═══════════════════════════════════════════════════════════════════ */
+
+.plan-hero {
+  text-align: center;
+  padding: 20px 20px 8px;
+}
+.plan-hero-amount { font-size: 32px; font-weight: 800; color: var(--ink); letter-spacing: -1px; }
+.plan-hero-sub { font-size: 14px; color: var(--ink-3); margin-top: 4px; }
+
+.plan-option {
+  margin: 0 20px 10px;
+  background: var(--surface);
+  border: 2px solid var(--ink-6);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.plan-option:active { transform: scale(0.98); }
+.plan-option.selected { border-color: var(--green); background: var(--green-50); }
+
+.plan-popular {
+  position: absolute;
+  top: -10px; right: 16px;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.plan-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.plan-months { font-size: 17px; font-weight: 700; color: var(--ink); }
+.plan-monthly {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+.plan-monthly span { font-size: 14px; font-weight: 500; color: var(--ink-3); }
+.plan-option.selected .plan-monthly { color: var(--green-dark); }
+
+.plan-detail { font-size: 13px; color: var(--ink-3); }
+.plan-detail strong { color: var(--ink-2); }
+
+/* Autopay */
+.autopay-row {
+  margin: 16px 20px;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-xs);
+}
+
+.autopay-info { flex: 1; }
+.autopay-title { font-size: 15px; font-weight: 650; color: var(--ink); }
+.autopay-sub { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+.plan-footer {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  flex-shrink: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 8: HSA/FSA SMART ROUTING
+   ═══════════════════════════════════════════════════════════════════ */
+
+.hsa-header-card {
+  margin: 0 20px;
+  padding: 20px;
+  background: var(--green);
+  border-radius: var(--r-xl);
+  color: #fff;
+}
+
+.hsa-header-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+.hsa-header-balance { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+.hsa-header-account { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+.hsa-split-title {
+  padding: 20px 20px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.hsa-line {
+  margin: 0 20px 8px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-xs);
+}
+
+.hsa-line-left { flex: 1; }
+.hsa-line-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.hsa-line-amount { font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; margin-top: 2px; }
+
+.hsa-route-summary {
+  margin: 16px 20px;
+  padding: 16px;
+  background: var(--green-50);
+  border: 1px solid var(--green-light);
+  border-radius: var(--r-lg);
+}
+
+.hsa-route-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.hsa-route-row.total {
+  border-top: 1px solid var(--green-light);
+  margin-top: 8px;
+  padding-top: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.hsa-route-row strong { font-weight: 700; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 9: AI ASSISTANT
+   ═══════════════════════════════════════════════════════════════════ */
+
+.ai-header {
+  padding: 12px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ai-avatar {
+  width: 40px; height: 40px;
+  background: var(--ink);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.ai-header-info { flex: 1; }
+.ai-header-name { font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; }
+.ai-header-sub  { font-size: 12px; color: var(--ink-3); }
+
+.ai-online {
+  width: 10px; height: 10px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(92,184,92,0.5);
+  animation: pulse 2s infinite;
+}
+
+.ai-suggestions {
+  padding: 4px 20px 12px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.ai-suggestions::-webkit-scrollbar { display: none; }
+
+.ai-suggestion {
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--ink-6);
+  border-radius: var(--r-full);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ai-suggestion:active { background: var(--ink-6); transform: scale(0.95); }
+
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.chat-area::-webkit-scrollbar { display: none; }
+
+.msg {
+  max-width: 85%;
+  padding: 14px 18px;
+  border-radius: var(--r-xl);
+  font-size: 15px;
+  line-height: 1.55;
+  animation: fadeUp 0.3s var(--ease-out);
+}
+
+.msg-user {
+  align-self: flex-end;
+  background: var(--green);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+  font-weight: 500;
+}
+
+.msg-ai {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--ink-2);
+  border-bottom-left-radius: 6px;
+  box-shadow: var(--shadow-sm);
+}
+.msg-ai strong { color: var(--ink); font-weight: 700; }
+
+.chat-input-bar {
+  padding: 12px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--ink-6);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px 16px;
+  font-family: var(--font);
+  font-size: 15px;
+  background: var(--canvas);
+  border: none;
+  border-radius: var(--r-full);
+  outline: none;
+  color: var(--ink);
+}
+.chat-input::placeholder { color: var(--ink-4); }
+
+.chat-send {
+  width: 40px; height: 40px;
+  background: var(--green);
+  border: none;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  font-size: 16px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.chat-send:active { transform: scale(0.9); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 10: MEMBERSHIP - Premium card design
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mem-card {
+  margin: 0 20px;
+  padding: 28px 24px 24px;
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  border-radius: var(--r-2xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+
+.mem-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(92,184,92,0.15) 0%, transparent 70%);
+}
+
+.mem-card::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; left: -20px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(13,148,136,0.1) 0%, transparent 70%);
+}
+
+.mem-sparkle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  position: relative; z-index: 1;
+}
+
+.mem-plan-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 2px;
+  position: relative; z-index: 1;
+}
+
+.mem-price {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+.mem-price span { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.4); }
+
+.mem-member-info {
+  display: flex;
+  justify-content: space-between;
+  position: relative; z-index: 1;
+}
+
+.mem-info-label { font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.mem-info-value { font-size: 14px; color: rgba(255,255,255,0.8); font-weight: 600; margin-top: 2px; }
+
+/* Credits */
+.mem-credits {
+  margin: 20px 20px 0;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.mem-credits-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.mem-credits-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.mem-credits-count { font-size: 15px; font-weight: 800; color: var(--green-dark); }
+.mem-credits-count span { color: var(--ink-3); font-weight: 500; }
+
+.mem-credits-bar {
+  height: 8px;
+  background: var(--ink-6);
+  border-radius: var(--r-full);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.mem-credits-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: var(--r-full);
+  width: 64%;
+  transition: width 0.6s var(--ease-out);
+}
+
+.mem-credits-expiry { font-size: 12px; color: var(--ink-3); }
+
+/* Benefits */
+.mem-benefits {
+  margin: 16px 20px 0;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.mem-benefit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #F5F5F5;
+}
+.mem-benefit:last-child { border-bottom: none; }
+
+.mem-benefit-check {
+  width: 24px; height: 24px;
+  background: var(--green-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: var(--green-dark);
+  flex-shrink: 0;
+}
+
+.mem-benefit-text { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+
+/* Treatments */
+.mem-treatment {
+  margin: 0 20px 8px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-xs);
+}
+
+.mem-tx-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.mem-tx-date { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.mem-tx-units { font-size: 14px; font-weight: 700; color: var(--teal); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 11: PRE-VISIT ESTIMATE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.estimate-visit-card {
+  margin: 0 20px;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.estimate-date { font-size: 13px; color: var(--ink-3); font-weight: 500; margin-bottom: 4px; }
+.estimate-procedure { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; margin-bottom: 4px; }
+.estimate-doc { font-size: 14px; color: var(--ink-3); }
+
+.estimate-breakdown {
+  margin: 16px 20px 0;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.estimate-row {
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #F5F5F5;
+  font-size: 14px;
+}
+.estimate-row:last-child { border-bottom: none; }
+.estimate-row-label { color: var(--ink-2); }
+.estimate-row-value { font-weight: 700; color: var(--ink); }
+.estimate-row.total { background: var(--green-50); }
+.estimate-row.total .estimate-row-label { font-weight: 700; color: var(--green-dark); }
+.estimate-row.total .estimate-row-value { color: var(--green-dark); font-size: 18px; }
+
+.estimate-deposit {
+  margin: 16px 20px 0;
+  padding: 20px;
+  background: var(--surface);
+  border: 1.5px dashed var(--green);
+  border-radius: var(--r-xl);
+  text-align: center;
+}
+
+.estimate-deposit-title { font-size: 15px; font-weight: 700; color: var(--green-dark); margin-bottom: 4px; }
+.estimate-deposit-sub { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+.estimate-deposit-amount { font-size: 28px; font-weight: 800; color: var(--green); letter-spacing: -1px; margin: 12px 0; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 12: FINANCIAL ASSISTANCE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.assist-hero {
+  text-align: center;
+  padding: 16px 24px 20px;
+}
+
+.assist-icon {
+  width: 64px; height: 64px;
+  background: var(--green-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 16px;
+}
+
+.assist-title { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; margin-bottom: 8px; }
+.assist-sub { font-size: 15px; color: var(--ink-3); line-height: 1.5; max-width: 280px; margin: 0 auto; }
+
+.assist-card {
+  margin: 0 20px 10px;
+  padding: 18px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.assist-card:active { transform: scale(0.98); }
+
+.assist-card-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.assist-card-info { flex: 1; }
+.assist-card-title { font-size: 15px; font-weight: 650; color: var(--ink); margin-bottom: 2px; }
+.assist-card-desc { font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+.assist-card-arrow { font-size: 18px; color: var(--ink-4); margin-top: 4px; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 13: CONFIRMATION - Celebration
+   ═══════════════════════════════════════════════════════════════════ */
+
+#confirmation {
+  background: var(--surface);
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-check {
+  width: 80px; height: 80px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  animation: scaleIn 0.5s var(--ease-spring) both;
+  box-shadow: 0 8px 32px rgba(92,184,92,0.3);
+}
+
+.confirm-check svg {
+  width: 36px; height: 36px;
+  stroke: #fff;
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  animation: checkmark 0.6s ease 0.4s both;
+}
+
+.confirm-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  animation: fadeUp 0.4s var(--ease-out) 0.3s both;
+}
+
+.confirm-amount {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: -1.5px;
+  margin-bottom: 8px;
+  animation: fadeUp 0.4s var(--ease-out) 0.4s both;
+}
+
+.confirm-sub {
+  font-size: 14px;
+  color: var(--ink-3);
+  margin-bottom: 40px;
+  animation: fadeUp 0.4s var(--ease-out) 0.5s both;
+}
+
+.confirm-receipt {
+  width: calc(100% - 40px);
+  background: var(--canvas);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  margin-bottom: 32px;
+  animation: fadeUp 0.4s var(--ease-out) 0.6s both;
+}
+
+.confirm-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+}
+.confirm-receipt-label { color: var(--ink-3); }
+.confirm-receipt-value { font-weight: 650; color: var(--ink); }
+
+.confirm-actions {
+  width: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeUp 0.4s var(--ease-out) 0.7s both;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCREEN 14: PROFILE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.profile-header {
+  text-align: center;
+  padding: 8px 20px 24px;
+}
+
+.profile-avatar {
+  width: 72px; height: 72px;
+  background: var(--green-light);
+  border: 3px solid var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 12px;
+}
+
+.profile-name { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+.profile-email { font-size: 14px; color: var(--ink-3); margin-top: 2px; }
+
+.profile-group {
+  margin: 0 20px 16px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #F5F5F5;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.profile-row:last-child { border-bottom: none; }
+.profile-row:active { background: var(--canvas); }
+
+.profile-row-icon {
+  width: 36px; height: 36px;
+  background: var(--canvas);
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.profile-row-text { flex: 1; font-size: 15px; font-weight: 500; color: var(--ink); }
+.profile-row-arrow { font-size: 16px; color: var(--ink-4); }
+.profile-row-value { font-size: 14px; color: var(--ink-3); }
+
+.profile-row.danger .profile-row-text { color: var(--red); font-weight: 600; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILITY
+   ═══════════════════════════════════════════════════════════════════ */
+
+.px-20 { padding-left: 20px; padding-right: 20px; }
+.pb-20 { padding-bottom: 20px; }
+.mb-10 { margin-bottom: 10px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.gap-10 > * + * { margin-top: 10px; }
+
+/* App Switcher */
+#app-switcher {
+  position: fixed; top: 16px; right: 16px; z-index: 9999;
+}
+#switcher-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.8);
+  padding: 7px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  backdrop-filter: blur(10px); transition: all .2s;
+  font-family: inherit; letter-spacing: .03em;
+}
+#switcher-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+#switcher-menu {
+  display: none; flex-direction: column;
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: rgba(10,18,36,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; padding: 6px; min-width: 176px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#app-switcher.open #switcher-menu { display: flex; }
+#switcher-menu a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600;
+  text-decoration: none; transition: background .15s, color .15s;
+}
+#switcher-menu a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+#switcher-menu a i { width: 16px; color: #5CB85C; font-size: 12px; flex-shrink: 0; }
+#switcher-menu .sw-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 4px 6px; }
+
+</style>
+</head>
+<body>
+
+<!-- App Switcher -->
+<div id="app-switcher">
+  <button id="switcher-btn" onclick="this.closest('#app-switcher').classList.toggle('open')">
+    <i class="fa-solid fa-grip"></i> Switch
+  </button>
+  <div id="switcher-menu">
+    <a href="index.html"><i class="fa-solid fa-house"></i> Hub</a>
+    <div class="sw-divider"></div>
+    <a href="patient-app.html"><i class="fa-solid fa-mobile-screen"></i> Patient App</a>
+    <a href="direct-pay.html"><i class="fa-solid fa-link"></i> Direct Pay</a>
+    <a href="deck.html"><i class="fa-solid fa-chart-bar"></i> Stakeholder Deck</a>
+  </div>
+</div>
+
+<div class="device">
+
+  <!-- ── STATUS BAR ── -->
+  <div class="statusbar light" id="statusbar">
+    <span id="clock">9:41</span>
+    <div class="statusbar-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+        <rect x="0" y="4" width="3" height="8" rx="0.5" opacity="0.4"/>
+        <rect x="4.5" y="2.5" width="3" height="9.5" rx="0.5" opacity="0.6"/>
+        <rect x="9" y="0.5" width="3" height="11.5" rx="0.5" opacity="0.8"/>
+        <rect x="13.5" y="0" width="2.5" height="12" rx="0.5"/>
+      </svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+        <path d="M8 2.4C9.9 2.4 11.6 3.1 12.9 4.3L14.1 3.1C12.5 1.6 10.4 .7 8 .7 5.6.7 3.5 1.6 1.9 3.1L3.1 4.3C4.4 3.1 6.1 2.4 8 2.4Z" opacity="0.6"/>
+        <path d="M8 5C9.2 5 10.3 5.5 11.1 6.3L12.3 5.1C11.2 4.1 9.7 3.5 8 3.5 6.3 3.5 4.8 4.1 3.7 5.1L4.9 6.3C5.7 5.5 6.8 5 8 5Z" opacity="0.8"/>
+        <circle cx="8" cy="9.5" r="1.8"/>
+      </svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
+        <rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none" opacity="0.35"/>
+        <rect x="22" y="4" width="2" height="4" rx="1" opacity="0.35"/>
+        <rect x="1.5" y="2.5" width="15" height="7" rx="1" opacity="0.9"/>
+      </svg>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 1: SPLASH
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen active" id="splash">
+    <div class="splash-glow"></div>
+    <div class="splash-pill"><i class="fa-solid fa-user-doctor" style="color:var(--green);"></i></div>
+    <div class="splash-name">PayMyDerm</div>
+    <div class="splash-tagline">Your balance. Understood.</div>
+    <button class="splash-cta" onclick="go('auth')">
+      Get Started <span class="arrow">→</span>
+    </button>
+    <div class="splash-trust">🔒 HIPAA Compliant · 256-bit Encrypted</div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 2: AUTH
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="auth">
+    <div class="status-spacer"></div>
+    <div class="auth-wrap">
+      <div class="auth-logo">
+        <span class="auth-logo-pill"><i class="fa-solid fa-user-doctor" style="color:var(--green);"></i></span>
+        <span class="auth-logo-name">PayMyDerm</span>
+      </div>
+      <div class="auth-question">What's your<br>phone number?</div>
+      <div class="auth-sub">We'll text you a code. No passwords, ever.</div>
+
+      <div class="auth-input-wrap">
+        <div class="auth-input-label">Phone Number</div>
+        <input class="input" type="tel" value="(555) 284-1847" placeholder="(555) 000-0000">
+      </div>
+
+      <div class="auth-footer">
+        <button class="btn btn-primary" onclick="go('otp')">Send Code →</button>
+        <div class="auth-legal">
+          By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+        </div>
+        <div class="auth-trust">
+          <span>🔒</span>
+          <span class="auth-trust-text">256-bit AES · HIPAA compliant · SOC 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 3: OTP
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="otp">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('auth')">←</button>
+      <div class="topbar-title">Verify</div>
+      <div></div>
+    </div>
+    <div class="otp-wrap">
+      <div class="auth-question">Enter your code</div>
+      <div class="otp-sent">Sent to <strong>(555) 284-1847</strong></div>
+
+      <div class="otp-boxes">
+        <div class="otp-digit filled">4</div>
+        <div class="otp-digit filled">8</div>
+        <div class="otp-digit filled">2</div>
+        <div class="otp-digit filled">9</div>
+        <div class="otp-digit filled">1</div>
+        <div class="otp-digit empty">·</div>
+      </div>
+
+      <div class="otp-resend">Didn't get it? <a>Resend code</a></div>
+
+      <div class="otp-footer">
+        <button class="btn btn-primary" onclick="go('home')">Verify →</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 4: HOME
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="home">
+    <div class="status-spacer"></div>
+
+    <div class="home-header">
+      <div class="home-greeting-row">
+        <div>
+          <div class="home-hello">Good morning</div>
+          <div class="home-name">Sarah Mitchell</div>
+        </div>
+        <div class="home-avatar" onclick="go('profile')">👤</div>
+      </div>
+    </div>
+
+    <!-- Balance Hero -->
+    <div class="balance-hero">
+      <div class="balance-label">Outstanding Balance</div>
+      <div class="balance-amount" id="balance-display">$496.00</div>
+
+      <div class="balance-progress">
+        <div class="balance-progress-track">
+          <div class="balance-progress-fill"></div>
+        </div>
+        <div class="balance-progress-label">
+          <span><strong>35%</strong> resolved</span>
+          <span>Journey to $0</span>
+        </div>
+      </div>
+
+      <div class="balance-split">
+        <div class="balance-chip">
+          <div class="balance-chip-dot medical"></div>
+          Medical $156
+        </div>
+        <div class="balance-chip">
+          <div class="balance-chip-dot cosmetic"></div>
+          Cosmetic $340
+        </div>
+      </div>
+
+      <div class="balance-actions">
+        <button class="balance-btn balance-btn-primary" onclick="go('payment')">Pay Now →</button>
+        <button class="balance-btn balance-btn-ghost" onclick="go('plans')">Set Up Plan</button>
+      </div>
+    </div>
+
+    <div class="scroll home-scroll">
+      <div class="stagger">
+
+        <!-- Quick Actions -->
+        <div class="quick-grid">
+          <div class="quick-item" onclick="go('hsa')">
+            <div class="quick-icon gi">💳</div>
+            <div class="quick-text">HSA/FSA</div>
+          </div>
+          <div class="quick-item" onclick="go('plans')">
+            <div class="quick-icon ti">📅</div>
+            <div class="quick-text">Pay Plan</div>
+          </div>
+          <div class="quick-item" onclick="go('estimate')">
+            <div class="quick-icon ai">📋</div>
+            <div class="quick-text">Estimate</div>
+          </div>
+          <div class="quick-item" onclick="go('assist')">
+            <div class="quick-icon ni">🤝</div>
+            <div class="quick-text">Help</div>
+          </div>
+        </div>
+
+        <!-- AI Insight -->
+        <div class="insight" onclick="go('hsa')">
+          <div class="insight-icon">✦</div>
+          <div class="insight-text">
+            <strong>Your $96 biopsy is HSA-eligible.</strong>
+            You have $287 remaining in your FSA. Apply it now →
+          </div>
+        </div>
+
+        <!-- Bills -->
+        <div class="section-label">Your Bills</div>
+
+        <div class="bill-item" onclick="go('detail')">
+          <div class="bill-icon medical">🏥</div>
+          <div class="bill-info">
+            <div class="bill-title">Mole Biopsy + Pathology</div>
+            <div class="bill-meta">Apr 3 · Dr. Sarah Kim</div>
+          </div>
+          <div class="bill-right">
+            <div class="bill-amount">$156</div>
+            <div class="bill-status due">Due</div>
+          </div>
+        </div>
+
+        <div class="bill-item" onclick="go('detail')">
+          <div class="bill-icon cosmetic">✨</div>
+          <div class="bill-info">
+            <div class="bill-title">Botox - 40 Units</div>
+            <div class="bill-meta">Apr 3 · Dr. Sarah Kim</div>
+          </div>
+          <div class="bill-right">
+            <div class="bill-amount">$340</div>
+            <div class="bill-status due">Due</div>
+          </div>
+        </div>
+
+        <div class="bill-item">
+          <div class="bill-icon medical">🏥</div>
+          <div class="bill-info">
+            <div class="bill-title">Annual Skin Check</div>
+            <div class="bill-meta">Feb 12 · Dr. Sarah Kim</div>
+          </div>
+          <div class="bill-right">
+            <div class="bill-amount" style="color:var(--green)">$0</div>
+            <div class="bill-status paid">Paid</div>
+          </div>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="section-label">Upcoming</div>
+
+        <div class="upcoming" onclick="go('estimate')">
+          <div class="upcoming-date">
+            <div class="upcoming-month">Apr</div>
+            <div class="upcoming-day">22</div>
+          </div>
+          <div class="upcoming-info">
+            <div class="upcoming-title">Follow-up Consultation</div>
+            <div class="upcoming-sub">Dr. Sarah Kim · 10:30 AM</div>
+          </div>
+          <div class="upcoming-est">~$85</div>
+        </div>
+
+        <div style="height:16px"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="nav">
+      <button class="nav-item" onclick="go('detail')">
+        <i class="fa-solid fa-file-invoice-dollar nav-icon"></i>
+        <span class="nav-label">Bills</span>
+      </button>
+      <button class="nav-item" onclick="go('ai')">
+        <i class="fa-solid fa-comment-dots nav-icon"></i>
+        <span class="nav-label">AI</span>
+      </button>
+      <button class="nav-item active" onclick="go('home')">
+        <i class="fa-solid fa-house nav-icon"></i>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" onclick="go('assist')">
+        <i class="fa-solid fa-circle-question nav-icon"></i>
+        <span class="nav-label">Help</span>
+      </button>
+      <button class="nav-item" onclick="go('profile')">
+        <i class="fa-solid fa-user nav-icon"></i>
+        <span class="nav-label">Profile</span>
+      </button>
+    </nav>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 5: BILL DETAIL
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="detail">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('home')">←</button>
+      <div class="topbar-title">Bill Details</div>
+      <button class="topbar-action" onclick="go('ai')">Ask AI</button>
+    </div>
+
+    <div class="detail-header">
+      <div class="detail-visit">Visit - April 3, 2026</div>
+      <div class="detail-provider">Dermatology Associates · Dr. Sarah Kim</div>
+      <div class="detail-total-row">
+        <div>
+          <div class="detail-total">$496.00</div>
+          <div class="detail-total-label">Your responsibility</div>
+        </div>
+      </div>
+      <div class="detail-chips">
+        <span class="chip chip-green">🏥 Medical $156</span>
+        <span class="chip chip-teal">✨ Cosmetic $340</span>
+      </div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas); padding-top:4px; padding-bottom:100px;">
+
+      <!-- Inline AI Summary -->
+      <div class="insight" onclick="go('ai')" style="margin-top:16px;">
+        <div class="insight-icon">✦</div>
+        <div class="insight-text">
+          <strong>Your mole removal was covered by insurance.</strong>
+          Botox is cosmetic - not covered. $96 of this bill is HSA-eligible.
+        </div>
+      </div>
+
+      <!-- MEDICAL GROUP -->
+      <div class="line-group">
+        <div class="line-group-header">
+          <div class="line-group-dot medical"></div>
+          <div class="line-group-title medical">Medical</div>
+        </div>
+        <div class="line-card">
+          <div class="line-row">
+            <div class="line-top">
+              <div>
+                <div class="line-name">Mole Removal Biopsy</div>
+                <div style="display:flex; gap:6px; margin-top:6px;">
+                  <span class="line-tag hsa">✓ HSA Eligible</span>
+                  <span class="line-tag covered">Ins. Covered</span>
+                </div>
+              </div>
+              <div class="line-owe">$96</div>
+            </div>
+            <div class="line-details" style="margin-top:8px;">
+              <span class="line-detail">CPT 11102</span>
+              <span class="line-detail">Billed <strong>$450</strong></span>
+              <span class="line-detail">Insurance paid <strong>$354</strong></span>
+            </div>
+          </div>
+          <div class="line-row">
+            <div class="line-top">
+              <div>
+                <div class="line-name">Pathology Analysis</div>
+                <div style="display:flex; gap:6px; margin-top:6px;">
+                  <span class="line-tag hsa">✓ HSA Eligible</span>
+                  <span class="line-tag covered">Ins. Covered</span>
+                </div>
+              </div>
+              <div class="line-owe">$60</div>
+            </div>
+            <div class="line-details" style="margin-top:8px;">
+              <span class="line-detail">CPT 88305</span>
+              <span class="line-detail">Billed <strong>$285</strong></span>
+              <span class="line-detail">Insurance paid <strong>$225</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COSMETIC GROUP -->
+      <div class="line-group">
+        <div class="line-group-header">
+          <div class="line-group-dot cosmetic"></div>
+          <div class="line-group-title cosmetic">Cosmetic</div>
+        </div>
+        <div class="line-card">
+          <div class="line-row">
+            <div class="line-top">
+              <div>
+                <div class="line-name">Botox - 40 Units</div>
+                <div style="display:flex; gap:6px; margin-top:6px;">
+                  <span class="line-tag no-hsa">✕ Not HSA Eligible</span>
+                </div>
+              </div>
+              <div class="line-owe">$340</div>
+            </div>
+            <div class="line-details" style="margin-top:8px;">
+              <span class="line-detail">Self-pay</span>
+              <span class="line-detail">$8.50/unit × 40</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="detail-footer">
+      <button class="btn btn-primary" onclick="go('payment')">Pay $496.00</button>
+      <button class="btn btn-ghost" onclick="go('plans')">Set Up Payment Plan</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 6: PAYMENT
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="payment">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('detail')">←</button>
+      <div class="topbar-title">Pay</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas)">
+
+      <div class="pay-amount-display">
+        <div class="pay-label">Total Due</div>
+        <div class="pay-number" id="pay-display">$421.60</div>
+      </div>
+
+      <!-- Discount offer -->
+      <div class="discount-offer" id="discount-card" onclick="toggleDiscount()">
+        <div class="discount-top">
+          <span class="discount-badge">⚡ Save 15%</span>
+          <span class="discount-check on" id="discount-check">✓</span>
+        </div>
+        <div class="discount-main">Pay $421.60 today</div>
+        <div class="discount-sub">You save $74.40 vs. full balance</div>
+      </div>
+
+      <div class="section-label">Payment Method</div>
+
+      <div class="method-card selected" onclick="selectMethod(this)">
+        <div class="method-icon visa">VISA</div>
+        <div class="method-info">
+          <div class="method-name">Visa ending in 4242</div>
+          <div class="method-detail">Expires 08/27</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <div class="method-card" onclick="selectMethod(this)">
+        <div class="method-icon apple"></div>
+        <div class="method-info">
+          <div class="method-name">Apple Pay</div>
+          <div class="method-detail">Wallet</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <div class="method-card" onclick="selectMethod(this)">
+        <div class="method-icon hsa">HSA</div>
+        <div class="method-info">
+          <div class="method-name">HSA Debit ····7891</div>
+          <div class="method-detail">$287.00 available</div>
+        </div>
+        <div class="method-radio"><div class="method-radio-dot"></div></div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+
+    <div class="pay-footer">
+      <button class="btn btn-primary" id="pay-btn" onclick="go('confirmation')">Pay $421.60</button>
+      <div class="pay-security">🔒 Secured by Stripe · PCI Compliant</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 7: PAYMENT PLANS
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="plans">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('detail')">←</button>
+      <div class="topbar-title">Payment Plans</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas);">
+
+      <div class="plan-hero">
+        <div class="plan-hero-amount">$496.00</div>
+        <div class="plan-hero-sub">Split into easy monthly payments</div>
+      </div>
+
+      <div class="plan-option" id="plan-3" onclick="selectPlan(3)">
+        <div class="plan-top">
+          <div class="plan-months">3 months</div>
+          <div class="plan-monthly">$165.33<span>/mo</span></div>
+        </div>
+        <div class="plan-detail">Total: $496.00 · <strong>0% interest</strong></div>
+      </div>
+
+      <div class="plan-option selected" id="plan-6" onclick="selectPlan(6)">
+        <div class="plan-popular">POPULAR</div>
+        <div class="plan-top">
+          <div class="plan-months">6 months</div>
+          <div class="plan-monthly">$82.67<span>/mo</span></div>
+        </div>
+        <div class="plan-detail">Total: $496.00 · <strong>0% interest</strong></div>
+      </div>
+
+      <div class="plan-option" id="plan-12" onclick="selectPlan(12)">
+        <div class="plan-top">
+          <div class="plan-months">12 months</div>
+          <div class="plan-monthly">$41.33<span>/mo</span></div>
+        </div>
+        <div class="plan-detail">Total: $496.00 · <strong>0% interest</strong></div>
+      </div>
+
+      <div class="autopay-row">
+        <div class="autopay-info">
+          <div class="autopay-title">Auto-pay</div>
+          <div class="autopay-sub">Visa ····4242 on the 1st</div>
+        </div>
+        <div class="toggle on" id="autopay-toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+    </div>
+
+    <div class="plan-footer">
+      <button class="btn btn-primary" onclick="go('confirmation')">Start Plan - $82.67/mo</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 8: HSA/FSA SMART ROUTING
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="hsa">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('home')">←</button>
+      <div class="topbar-title">HSA/FSA Payment</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas); padding-top:16px;">
+
+      <div class="hsa-header-card">
+        <div class="hsa-header-label">Your FSA Balance</div>
+        <div class="hsa-header-balance">$287.00</div>
+        <div class="hsa-header-account">HealthEquity FSA ····7891</div>
+      </div>
+
+      <div class="insight" style="margin-top:16px;">
+        <div class="insight-icon">✦</div>
+        <div class="insight-text">
+          <strong>We'll split your payment automatically.</strong>
+          HSA-eligible charges go to your FSA. The rest goes to your card.
+        </div>
+      </div>
+
+      <div class="hsa-split-title">Eligible Charges</div>
+
+      <div class="hsa-line">
+        <div class="hsa-line-left">
+          <div class="hsa-line-name">Mole Removal Biopsy</div>
+          <span class="chip chip-green" style="margin-top:4px;">✓ HSA Eligible</span>
+        </div>
+        <div class="hsa-line-amount">$96.00</div>
+      </div>
+
+      <div class="hsa-line">
+        <div class="hsa-line-left">
+          <div class="hsa-line-name">Pathology Analysis</div>
+          <span class="chip chip-green" style="margin-top:4px;">✓ HSA Eligible</span>
+        </div>
+        <div class="hsa-line-amount">$60.00</div>
+      </div>
+
+      <div class="hsa-line">
+        <div class="hsa-line-left">
+          <div class="hsa-line-name">Botox - 40 Units</div>
+          <span class="chip chip-neutral" style="margin-top:4px;">✕ Cosmetic</span>
+        </div>
+        <div class="hsa-line-amount">$340.00</div>
+      </div>
+
+      <div class="hsa-route-summary">
+        <div class="hsa-route-row">
+          <span>💳 FSA Card ····7891</span>
+          <strong>$156.00</strong>
+        </div>
+        <div class="hsa-route-row">
+          <span>💳 Visa ····4242</span>
+          <strong>$340.00</strong>
+        </div>
+        <div class="hsa-route-row total">
+          <span>Total</span>
+          <strong>$496.00</strong>
+        </div>
+      </div>
+
+      <div style="height:24px"></div>
+    </div>
+
+    <div class="pay-footer">
+      <button class="btn btn-primary" onclick="go('confirmation')">Pay $496.00 (Split)</button>
+      <div class="pay-security">🔒 Both cards charged securely</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 9: AI ASSISTANT
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="ai">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('home')">←</button>
+      <div class="topbar-title"></div>
+      <div></div>
+    </div>
+
+    <div class="ai-header">
+      <div class="ai-avatar">✦</div>
+      <div class="ai-header-info">
+        <div class="ai-header-name">PayMyDerm AI</div>
+        <div class="ai-header-sub">Derm billing specialist</div>
+      </div>
+      <div class="ai-online"></div>
+    </div>
+
+    <div class="ai-suggestions">
+      <button class="ai-suggestion" onclick="aiAsk(this)">Why wasn't Botox covered?</button>
+      <button class="ai-suggestion" onclick="aiAsk(this)">What's HSA-eligible?</button>
+      <button class="ai-suggestion" onclick="aiAsk(this)">Set up a payment plan</button>
+      <button class="ai-suggestion" onclick="aiAsk(this)">Can I get a discount?</button>
+    </div>
+
+    <div class="chat-area" id="chat-area">
+      <div class="msg msg-ai">
+        Hi Sarah! 👋 I can help you understand your dermatology bills, find savings, and navigate your payment options. What would you like to know?
+      </div>
+      <div class="msg msg-user">Why wasn't my Botox covered by insurance?</div>
+      <div class="msg msg-ai">
+        <strong>Botox for cosmetic purposes is classified as an elective procedure</strong> and is not covered by most medical insurance plans, including yours (Blue Cross PPO).
+        <br><br>
+        Your 40-unit Botox treatment ($340) was administered for cosmetic wrinkle reduction - which falls outside medical necessity criteria.
+        <br><br>
+        However, your <strong>mole removal ($96) and pathology ($60) were covered</strong> because they're medically necessary diagnostic procedures.
+        <br><br>
+        💡 <strong>Tip:</strong> If your provider determines Botox is medically necessary (e.g., for migraines or hyperhidrosis), it may be covered under a different billing code.
+      </div>
+    </div>
+
+    <div class="chat-input-bar">
+      <input class="chat-input" placeholder="Ask about your bill..." id="chat-input">
+      <button class="chat-send" onclick="sendChat()">↑</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 10: PRE-VISIT ESTIMATE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="estimate">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('home')">←</button>
+      <div class="topbar-title">Cost Estimate</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas); padding-top:16px; padding-bottom:24px;">
+      <div class="stagger">
+
+        <div class="estimate-visit-card">
+          <div class="estimate-date">Tuesday, April 22, 2026 · 10:30 AM</div>
+          <div class="estimate-procedure">Follow-up Consultation</div>
+          <div class="estimate-doc">Dr. Sarah Kim · Dermatology Associates</div>
+        </div>
+
+        <div class="section-label">Estimated Costs</div>
+
+        <div class="estimate-breakdown">
+          <div class="estimate-row">
+            <span class="estimate-row-label">Office visit (CPT 99213)</span>
+            <span class="estimate-row-value">$185</span>
+          </div>
+          <div class="estimate-row">
+            <span class="estimate-row-label">Insurance est. coverage</span>
+            <span class="estimate-row-value" style="color:var(--green)">–$100</span>
+          </div>
+          <div class="estimate-row total">
+            <span class="estimate-row-label">Your estimated cost</span>
+            <span class="estimate-row-value">$85</span>
+          </div>
+        </div>
+
+        <div class="insight" style="margin-top:16px;">
+          <div class="insight-icon">✦</div>
+          <div class="insight-text">
+            <strong>This visit is likely HSA-eligible.</strong>
+            Based on the procedure code, you may use your FSA balance.
+          </div>
+        </div>
+
+        <div class="estimate-deposit">
+          <div class="estimate-deposit-title">Secure your appointment</div>
+          <div class="estimate-deposit-sub">A small deposit confirms your slot.<br>Applied to your final bill.</div>
+          <div class="estimate-deposit-amount">$25</div>
+          <button class="btn btn-primary" style="margin:0;">Pay Deposit →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 12: FINANCIAL ASSISTANCE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="assist">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('home')">←</button>
+      <div class="topbar-title">Help & Assistance</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas); padding-bottom:24px;">
+      <div class="stagger">
+
+        <div class="assist-hero">
+          <div class="assist-icon">🤝</div>
+          <div class="assist-title">We're here to help</div>
+          <div class="assist-sub">Everyone deserves accessible care. Explore options that may reduce your costs.</div>
+        </div>
+
+        <div class="assist-card">
+          <div class="assist-card-icon" style="background:var(--green-light);">💰</div>
+          <div class="assist-card-info">
+            <div class="assist-card-title">Payment Plans</div>
+            <div class="assist-card-desc">Split your balance into 3, 6, or 12 monthly payments at 0% interest.</div>
+          </div>
+          <div class="assist-card-arrow">›</div>
+        </div>
+
+        <div class="assist-card">
+          <div class="assist-card-icon" style="background:var(--teal-light);">🏥</div>
+          <div class="assist-card-info">
+            <div class="assist-card-title">Financial Hardship Program</div>
+            <div class="assist-card-desc">Income-based discounts for patients facing financial difficulty.</div>
+          </div>
+          <div class="assist-card-arrow">›</div>
+        </div>
+
+        <div class="assist-card">
+          <div class="assist-card-icon" style="background:var(--amber-light);">💊</div>
+          <div class="assist-card-info">
+            <div class="assist-card-title">Medication Assistance</div>
+            <div class="assist-card-desc">Co-pay cards for biologics - Dupixent, Cosentyx, and more.</div>
+          </div>
+          <div class="assist-card-arrow">›</div>
+        </div>
+
+        <div class="assist-card">
+          <div class="assist-card-icon" style="background:#F3F4F6;">📞</div>
+          <div class="assist-card-info">
+            <div class="assist-card-title">Talk to Billing Team</div>
+            <div class="assist-card-desc">Speak with a specialist who can walk through your options.</div>
+          </div>
+          <div class="assist-card-arrow">›</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 13: CONFIRMATION
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="confirmation">
+    <div class="status-spacer"></div>
+
+    <div class="confirm-check">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
+    </div>
+    <div class="confirm-title">Payment Successful</div>
+    <div class="confirm-amount">$421.60</div>
+    <div class="confirm-sub">Confirmation sent to (555) 284-1847</div>
+
+    <div class="confirm-receipt">
+      <div class="confirm-receipt-row">
+        <span class="confirm-receipt-label">Date</span>
+        <span class="confirm-receipt-value">April 16, 2026</span>
+      </div>
+      <div class="confirm-receipt-row">
+        <span class="confirm-receipt-label">Method</span>
+        <span class="confirm-receipt-value">Visa ····4242</span>
+      </div>
+      <div class="confirm-receipt-row">
+        <span class="confirm-receipt-label">Discount</span>
+        <span class="confirm-receipt-value" style="color:var(--green)">−$74.40</span>
+      </div>
+      <div class="confirm-receipt-row">
+        <span class="confirm-receipt-label">Reference</span>
+        <span class="confirm-receipt-value">#PMD-28491</span>
+      </div>
+    </div>
+
+    <div class="confirm-actions">
+      <button class="btn btn-primary" onclick="go('home')">Back to Home</button>
+      <button class="btn btn-ghost">Download Receipt</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 14: PROFILE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="profile">
+    <div class="status-spacer"></div>
+    <div class="topbar">
+      <button class="topbar-back" onclick="go('home')">←</button>
+      <div class="topbar-title">Profile</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="background:var(--canvas); padding-bottom:24px;">
+
+      <div class="profile-header">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-name">Sarah Mitchell</div>
+        <div class="profile-email">sarah.mitchell@email.com</div>
+      </div>
+
+      <div class="section-label">Account</div>
+      <div class="profile-group">
+        <div class="profile-row">
+          <div class="profile-row-icon">📱</div>
+          <div class="profile-row-text">Phone</div>
+          <div class="profile-row-value">(555) 284-1847</div>
+        </div>
+        <div class="profile-row">
+          <div class="profile-row-icon">✉️</div>
+          <div class="profile-row-text">Email</div>
+          <div class="profile-row-value">sarah.m@email.com</div>
+        </div>
+        <div class="profile-row">
+          <div class="profile-row-icon">🏥</div>
+          <div class="profile-row-text">Insurance</div>
+          <div class="profile-row-value">Blue Cross PPO</div>
+          <div class="profile-row-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-label">Payment</div>
+      <div class="profile-group">
+        <div class="profile-row">
+          <div class="profile-row-icon">💳</div>
+          <div class="profile-row-text">Payment Methods</div>
+          <div class="profile-row-value">2 cards</div>
+          <div class="profile-row-arrow">›</div>
+        </div>
+        <div class="profile-row">
+          <div class="profile-row-icon">💰</div>
+          <div class="profile-row-text">HSA/FSA Accounts</div>
+          <div class="profile-row-value">1 linked</div>
+          <div class="profile-row-arrow">›</div>
+        </div>
+        <div class="profile-row">
+          <div class="profile-row-icon">📄</div>
+          <div class="profile-row-text">Payment History</div>
+          <div class="profile-row-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-label">Preferences</div>
+      <div class="profile-group">
+        <div class="profile-row">
+          <div class="profile-row-icon">🔔</div>
+          <div class="profile-row-text">Notifications</div>
+          <div class="profile-row-arrow">›</div>
+        </div>
+        <div class="profile-row">
+          <div class="profile-row-icon">🌍</div>
+          <div class="profile-row-text">Language</div>
+          <div class="profile-row-value">English</div>
+        </div>
+      </div>
+
+      <div class="profile-group" style="margin-top:16px;">
+        <div class="profile-row danger">
+          <div class="profile-row-icon">🚪</div>
+          <div class="profile-row-text">Sign Out</div>
+        </div>
+      </div>
+
+      <div style="text-align:center; padding:24px 20px; font-size:12px; color:var(--ink-4);">
+        PayMyDerm v2026.1 · Powered by Claude AI<br>
+        HIPAA Compliant · SOC 2 Certified
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /device -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+
+const screens = document.querySelectorAll('.screen');
+const statusbar = document.getElementById('statusbar');
+
+const lightScreens = ['splash', 'home'];
+
+function go(id) {
+  screens.forEach(s => {
+    s.classList.remove('active');
+    s.style.animation = 'none';
+  });
+  const target = document.getElementById(id);
+  if (target) {
+    // Force reflow to restart animation
+    void target.offsetWidth;
+    target.style.animation = '';
+    target.classList.add('active');
+
+    // Status bar color
+    statusbar.className = lightScreens.includes(id) ? 'statusbar light' : 'statusbar dark';
+
+    // Scroll to top
+    const sc = target.querySelector('.scroll');
+    if (sc) sc.scrollTop = 0;
+
+    // Scroll chat to bottom
+    const chat = target.querySelector('.chat-area');
+    if (chat) setTimeout(() => chat.scrollTop = chat.scrollHeight, 50);
+  }
+}
+
+// Payment method selection
+function selectMethod(el) {
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Discount toggle
+let discountOn = true;
+function toggleDiscount() {
+  discountOn = !discountOn;
+  const check = document.getElementById('discount-check');
+  const display = document.getElementById('pay-display');
+  const btn = document.getElementById('pay-btn');
+
+  if (discountOn) {
+    check.className = 'discount-check on';
+    check.textContent = '✓';
+    display.textContent = '$421.60';
+    btn.textContent = 'Pay $421.60';
+  } else {
+    check.className = 'discount-check off';
+    check.textContent = '';
+    display.textContent = '$496.00';
+    btn.textContent = 'Pay $496.00';
+  }
+}
+
+// Plan selection
+function selectPlan(months) {
+  const plans = { 3: '$165.33', 6: '$82.67', 12: '$41.33' };
+  [3, 6, 12].forEach(m => {
+    const el = document.getElementById('plan-' + m);
+    if (el) el.classList.toggle('selected', m === months);
+  });
+  const footer = document.querySelector('.plan-footer .btn');
+  if (footer) footer.textContent = `Start Plan - ${plans[months]}/mo`;
+}
+
+// Chat interaction
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const area = document.getElementById('chat-area');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'msg msg-user';
+  userMsg.textContent = text;
+  area.appendChild(userMsg);
+  input.value = '';
+
+  setTimeout(() => {
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'msg msg-ai';
+    aiMsg.innerHTML = `That's a great question! Based on your billing records, I can help with that. Let me look into the details of your account. <br><br>Would you like me to check your <strong>insurance coverage</strong>, <strong>HSA eligibility</strong>, or <strong>payment plan options</strong>?`;
+    area.appendChild(aiMsg);
+    area.scrollTop = area.scrollHeight;
+  }, 800);
+
+  area.scrollTop = area.scrollHeight;
+}
+
+function aiAsk(el) {
+  document.getElementById('chat-input').value = el.textContent;
+  sendChat();
+}
+
+// Enter key for chat
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  let h = now.getHours();
+  const m = now.getMinutes().toString().padStart(2, '0');
+  h = h % 12 || 12;
+  document.getElementById('clock').textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// Prevent rubber-band on non-scrollable areas
+document.querySelector('.device').addEventListener('touchmove', function(e) {
+  if (!e.target.closest('.scroll') && !e.target.closest('.chat-area') && !e.target.closest('.ai-suggestions')) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Init
+go('splash');
+
+document.addEventListener('click', (e) => {
+  const sw = document.getElementById('app-switcher');
+  if (sw && !sw.contains(e.target)) sw.classList.remove('open');
+});
+
+</script>
+</body>
+</html>
