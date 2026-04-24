@@ -771,6 +771,29 @@ body {
 .plan-detail { font-size: 13px; color: var(--ink-3); }
 .plan-detail strong { color: var(--ink-2); }
 
+/* Custom plan slider */
+.plan-slider-wrap { margin-top: 14px; }
+.plan-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px; border-radius: 3px;
+  background: #E5E7EB; outline: none; cursor: pointer; display: block;
+}
+.plan-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--green); cursor: pointer;
+  border: 3px solid #fff; box-shadow: 0 2px 8px rgba(92,184,92,0.45);
+}
+.plan-slider::-moz-range-thumb {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--green); cursor: pointer;
+  border: 3px solid #fff; box-shadow: 0 2px 8px rgba(92,184,92,0.45);
+}
+.plan-slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ink-4); margin-top: 6px;
+}
+
 .plan-footer {
   padding: 16px 20px;
   background: var(--surface);
@@ -897,7 +920,7 @@ body {
         <div class="ai-explain">
           <div class="ai-explain-icon">✦</div>
           <div class="ai-explain-text">
-            <strong>Here's what happened:</strong> Your mole was removed and tested (covered by insurance - you owe $156). You also had Botox (cosmetic, not covered - $340).
+            <strong>Here's what happened:</strong> Your mole removal biopsy was submitted for pathology analysis (covered by insurance — you owe $156). You also had Botox injections (cosmetic, not covered by insurance — $340).
           </div>
         </div>
 
@@ -1166,6 +1189,20 @@ body {
         <div class="plan-detail">Total $496.00 · 0% interest · <strong>Lowest monthly</strong></div>
       </div>
 
+      <div class="plan-option" id="plan-custom" onclick="selectPlan('custom'); updateDirectCustom(document.getElementById('dp-custom-input').value);">
+        <div class="plan-top">
+          <div class="plan-months">Custom Amount</div>
+          <div class="plan-monthly" id="dp-custom-display">—<span>/mo</span></div>
+        </div>
+        <div class="plan-slider-wrap">
+          <input class="plan-slider" type="range" min="20" max="496" step="5" value="50" id="dp-custom-input"
+            onclick="event.stopPropagation();"
+            oninput="selectPlan('custom'); updateDirectCustom(this.value);">
+          <div class="plan-slider-labels"><span>$20 /mo</span><span>$496 /mo</span></div>
+        </div>
+        <div class="plan-detail" id="dp-custom-detail">Drag to set your monthly payment · 0% interest</div>
+      </div>
+
       <div style="height:24px"></div>
     </div>
 
@@ -1209,12 +1246,36 @@ function selectMethod(el) {
 // Plan selection
 function selectPlan(months) {
   const plans = { 3: '$165.33', 6: '$82.67', 12: '$41.33' };
-  [3, 6, 12].forEach(m => {
+  [3, 6, 12, 'custom'].forEach(m => {
     const el = document.getElementById('plan-' + m);
     if (el) el.classList.toggle('selected', m === months);
   });
   const footer = document.querySelector('.plan-footer .btn');
-  if (footer) footer.textContent = `Start Plan - ${plans[months]}/mo`;
+  if (months !== 'custom' && footer) footer.textContent = `Start Plan - ${plans[months]}/mo`;
+}
+
+function sliderFill(slider) {
+  const pct = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+  slider.style.background = `linear-gradient(to right, var(--green) ${pct}%, #E5E7EB ${pct}%)`;
+}
+
+function updateDirectCustom(val) {
+  const v = parseFloat(val);
+  const display = document.getElementById('dp-custom-display');
+  const detail = document.getElementById('dp-custom-detail');
+  const footer = document.querySelector('.plan-footer .btn');
+  const slider = document.getElementById('dp-custom-input');
+  if (slider) sliderFill(slider);
+  if (v > 0) {
+    const months = Math.ceil(496 / v);
+    display.innerHTML = '$' + v.toFixed(2) + '<span>/mo</span>';
+    detail.textContent = '~' + months + ' payments · 0% interest';
+    if (footer) footer.textContent = 'Start Plan – $' + v.toFixed(2) + '/mo';
+  } else {
+    display.innerHTML = '—<span>/mo</span>';
+    detail.textContent = 'Drag to set your monthly payment · 0% interest';
+    if (footer) footer.textContent = 'Start Plan - $82.67/mo';
+  }
 }
 
 // Clock
